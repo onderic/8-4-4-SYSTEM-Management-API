@@ -1,6 +1,14 @@
-import { Table, Model, Column, DataType, BelongsTo, HasMany, BeforeValidate } from "sequelize-typescript";
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  BelongsTo,
+  BeforeValidate,
+  ForeignKey,
+  Unique
+} from "sequelize-typescript";
 import { Staff } from "./staff";
-import { Stream } from "./stream";
 
 @Table
 export class Class extends Model<Class> {
@@ -16,18 +24,21 @@ export class Class extends Model<Class> {
   })
   abbreviation!: string;
 
-  // Define associations
-  @BelongsTo(() => Staff, "head")
+  @ForeignKey(() => Staff)
+  @Unique
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  headId!: number;
+
+  @BelongsTo(() => Staff, 'headId')
   head!: Staff;
 
-  @HasMany(() => Stream)
-  streams!: Stream[];
-
-  @BeforeValidate
-  static validateHeadType(instance: Class){
-    // check if the head is Teaching
-    if (instance.head && instance.head.type !== "TEACHING" ){
-        throw new Error("The head of a class must be of type TEACHING.");
-    }
-  }
+  // @BeforeValidate
+  // static validateHeadType(instance: Class) {
+  //   if (instance.head && instance.head.type !== "TEACHING") {
+  //     throw new Error("The head of a class must be of type TEACHING.");
+  //   }
+  // }
 }
