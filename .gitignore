@@ -1,0 +1,29 @@
+# Node.js / Express.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE (e.g., Visual Studio Code) configuration files
+.vscode/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Production build directory
+build/
+dist/
