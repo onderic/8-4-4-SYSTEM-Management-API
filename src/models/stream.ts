@@ -1,6 +1,6 @@
 // models/stream.ts
 
-import { Table, Model, Column, DataType, BelongsTo } from "sequelize-typescript";
+import { Table, Model, Column, DataType, BelongsTo,  ForeignKey, Unique } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { Class } from "./class"; 
 
@@ -18,10 +18,26 @@ export class Stream extends Model<Stream> {
   })
   abbreviation!: string;
 
+  @ForeignKey(() => Staff)
+  @Unique
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  teacher!: number;
+
   // Define associations
   @BelongsTo(() => Staff, "teacher")
-  teacher!: Staff;
+  staff!: Staff;
 
-  @BelongsTo(() => Class)
+  @ForeignKey(() => Class)
+  @Unique
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  classId!: number;
+
+  @BelongsTo(() => Class, 'classId')
   class!: Class;
 }

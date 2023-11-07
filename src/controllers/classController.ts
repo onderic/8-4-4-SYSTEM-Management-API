@@ -42,13 +42,22 @@ export const createClass = async (req: Request, res: Response) => {
 
 export const getClasses = async (req: Request, res: Response) => {
   try {
-    const classes = await Class.findAll();
+    const classes = await Class.findAll({
+      include: [
+        {
+          model: Staff,
+          as: 'head', 
+        },
+      ],
+    });
+
     res.status(200).json(classes);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to retrieve classes' });
   }
 }
+
 
 export const updateClass = async (req: Request, res: Response) => {
   const { id } = req.params;
