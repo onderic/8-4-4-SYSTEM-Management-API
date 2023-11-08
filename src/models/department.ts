@@ -6,6 +6,7 @@ import {
   BelongsTo,
   ForeignKey,
   HasMany,
+  Unique,
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { DepartmentHeadHistory } from "./departmentHistory"
@@ -24,6 +25,7 @@ export class Department extends Model<Department> {
   name!: string;
 
   @ForeignKey(() => Staff)
+  @Unique
   @Column({
     type: DataType.INTEGER,
     allowNull: false,

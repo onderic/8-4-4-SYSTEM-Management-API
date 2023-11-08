@@ -53,7 +53,7 @@ export const getStreams = async (req: Request, res: Response) => {
       console.error(error);
       res.status(500).json({ error: 'Failed to retrieve streams' });
     }
-  }
+}
 
 
 export const updateStream = async (req: Request, res: Response) => {

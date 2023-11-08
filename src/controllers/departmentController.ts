@@ -6,8 +6,19 @@ import { DepartmentHeadHistory } from "../models/departmentHistory"
 
 export const createDepartment = async (req:Request, res:Response) =>{
     try{
-        const { name, headId, startDate } = req.body
+        const { name, headId } = req.body
 
+        const existingDepartmentWithHead = await Department.findOne({
+            where: {
+              headId,
+            },
+          });
+      
+          if (existingDepartmentWithHead) {
+            return res.status(400).json({
+              error: "The staff is already leading another department.",
+            });
+        }
         const head = await Staff.findByPk(headId);
 
         if (!head || head.dataValues.type !== 'TEACHING') {
@@ -35,5 +46,66 @@ export const createDepartment = async (req:Request, res:Response) =>{
     }
 }
 
+export const getDepartments = async (req: Request, res: Response) => {
+    try {
+      const department = await Department.findAll({
+        include: [
+          {
+            model: Staff,
+            as: 'head', 
+          }
+        ],
+      });
+  
+      res.status(200).json(department);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to retrieve Departments' });
+    }
+}
 
 
+export const updateDepartments  = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const updates = { ...req.body };
+  
+      const [updatedRows] = await Department.update(updates, {
+        where: { id },
+      });
+  
+      if (updatedRows > 0) {
+        const updatedDepartment = await Department.findByPk(id);
+        if (updatedDepartment) {
+          res.status(200).json({ message: 'Department updated successfully', updatedDepartment });
+        } else {
+          res.status(404).json({ error: 'Department not found.' });
+        }
+      } else {
+        res.status(404).json({ error: 'Department not found.' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to update the Department' });
+    }
+  };
+
+export const deleteDepartmentHead = async (req:Request, res:Response)=>{
+    try{
+        const { id } = req.params
+
+        const existingdepartment = await Department.findByPk(id)
+
+        if (!existingdepartment){
+            res.status(404).json({ message: 'Staff not found' });
+            return;
+        }
+        
+        await existingdepartment.destroy();
+        res.json({ message: 'Department deleted successfully' });
+
+    } catch (error) {
+      console.error('Error deleting Department:', error);
+      res.status(500).json({ message: 'Error deleting Department' });
+    }
+}
