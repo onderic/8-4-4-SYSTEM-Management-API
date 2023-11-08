@@ -28,4 +28,47 @@ export const getDepartmentHistory = async (req: Request, res: Response) => {
       res.status(500).json({ error: "Failed to retrieve department history." });
     }
   };
-  
+
+
+export const updateDepartmentHead = async (req: Request, res: Response) => {
+  try {
+    const { departmentId, newHeadId, endDate } = req.body;
+    console.log(req.body)
+    // Validate that the new head is a TEACHING staff member
+    const newHead = await Staff.findByPk(newHeadId);
+
+    if (!newHead || newHead.dataValues.type !== 'TEACHING') {
+      return res.status(400).json({ error: "Invalid new department head. Must be a TEACHING staff member." });
+    }
+
+    // Find the most recent department head entry for the department
+    const previousHeadEntry = await DepartmentHeadHistory.findOne({
+      where: {
+        departmentId,
+        endDate: null, // The previous head's entry is currently active
+      },
+    });
+
+    if (!previousHeadEntry) {
+      return res.status(404).json({ error: "Department or previous head not found." });
+    }
+
+    // Update the previous head's entry with the end date
+    if (endDate) {
+      await previousHeadEntry.update({ endDate });
+    }
+
+    // Create a new entry for the new department head
+    const newHeadEntry = await DepartmentHeadHistory.create({
+      departmentId,
+      headId: newHeadId,
+      startDate: new Date(),
+      endDate: null, // The new head is currently active
+    } as DepartmentHeadHistory);
+
+    res.status(200).json({ message: "Department head updated successfully", newHeadEntry });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update department head. Try again later." });
+  }
+};

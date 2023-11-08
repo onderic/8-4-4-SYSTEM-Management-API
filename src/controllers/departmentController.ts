@@ -24,7 +24,7 @@ export const createDepartment = async (req:Request, res:Response) =>{
         await DepartmentHeadHistory.create({
             departmentId: department.id,
             headId: headId,
-            startDate,
+            startDate:new Date(),
             endDate: null
         }as DepartmentHeadHistory);
         // console.log("New dep history", DepartmentHeadHistory)
@@ -33,7 +33,7 @@ export const createDepartment = async (req:Request, res:Response) =>{
         console.error(error);
         res.status(500).json({ error: "Failed to create a department try again later" });
     }
-
-   
 }
+
+
 

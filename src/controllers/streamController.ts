@@ -56,49 +56,33 @@ export const getStreams = async (req: Request, res: Response) => {
   }
 
 
-
 export const updateStream = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params; // Extract the stream ID from the URL
-      const { name, abbreviation, teacher, classId } = req.body;
-  
-      // Check if the teacher and classId exist
-      const [checkDetails, foundClass] = await Promise.all([
-        Staff.findByPk(teacher),
-        Class.findByPk(classId),
-      ]);
-  
-      if (!checkDetails || !foundClass) {
-        return res.status(400).json({ error: "Invalid teacher or classId." });
-      }
-  
-      // Find the stream by its ID
-      const existingStream = await Stream.findByPk(id);
-  
-      if (!existingStream) {
-        return res.status(404).json({ error: "Stream not found." });
-      }
-  
-      console.log("Before update: ", existingStream.toJSON());
+  try {
+    const { id } = req.params;
+    const updates = { ...req.body };
 
-      // Update the stream's attributes
-      existingStream.name = name;
-      existingStream.abbreviation = abbreviation;
-      existingStream.teacher = teacher;
-      existingStream.classId = classId;
-      
-      console.log("After update: ", existingStream.toJSON());
-      
-      await existingStream.save();
-  
-      res.status(200).json({ message: "Stream updated successfully", updatedStream: existingStream });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to update the stream' });
+    const [updatedRows] = await Stream.update(updates, {
+      where: { id },
+    });
+
+    if (updatedRows > 0) {
+      const updatedStream = await Stream.findByPk(id);
+      if (updatedStream) {
+        res.status(200).json({ message: 'Stream updated successfully', updatedStream });
+      } else {
+        res.status(404).json({ error: 'Stream not found.' });
+      }
+    } else {
+      res.status(404).json({ error: 'Stream not found.' });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update the stream' });
   }
-
-  export const deleteStream = async (req: Request, res: Response) => {
+};
+  
+  
+export const deleteStream = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
   

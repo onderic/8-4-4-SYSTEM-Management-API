@@ -13,8 +13,10 @@ const connection = new Sequelize({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  logging: true,
+  logging: false,
   models: [Staff,Class,Stream, Department, DepartmentHeadHistory],
 });
 
 export default connection;
+
+// sudo -u postgres psql -d sqltest

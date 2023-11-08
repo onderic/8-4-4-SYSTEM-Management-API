@@ -11,7 +11,7 @@ const baseRoute = '/departmentHs';
 router.get(`${baseRoute}/:id`, departmentHsController.getDepartmentHistory);
 
 // // PUT /staff/:id - Update a staff
-// router.put(`${baseRoute}/:id`, departmentController.updateStaff);
+router.put(`${baseRoute}/update`, departmentHsController.updateDepartmentHead);
 
 // // DELETE /staff/:id - Delete a staff
 // router.delete(`${baseRoute}/:id`, departmentController.deleteStaff);
