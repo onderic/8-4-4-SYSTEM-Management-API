@@ -3,11 +3,15 @@ import express, { Request, Response } from "express";
 import staffRoutes from './routes/staffRoutes';
 import classRoutes from './routes/classRoutes';
 import streamRoutes from './routes/streamRoutes';
+import departmentRoutes from './routes/departmentRoutes';
+import departmentHsRoutes from './routes/departmentHsRoutes';
 import * as bodyParser from 'body-parser';
 import connection from "../config/database";
 import { Staff } from './models/staff'; 
 import { Class } from './models/class';
 import { Stream } from './models/stream';
+import { Department } from './models/department';
+import { DepartmentHeadHistory } from './models/departmentHistory';
 
 const app = express();
 
@@ -16,12 +20,16 @@ app.use(bodyParser.json());
 app.use('/api', staffRoutes);
 app.use('/api', classRoutes);
 app.use('/api', streamRoutes);
+app.use('/api', departmentRoutes);
+app.use('/api', departmentHsRoutes);
 
 const start = async (): Promise<void> => {
   try {
     // Synchronize the model with the database to create the table
     await Staff.sync(); 
     await Class.sync();
+    // await Department.sync({force:true});
+    // await DepartmentHeadHistory.sync({force:true});
     // await Stream.sync({force:true});
 
     

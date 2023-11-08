@@ -3,6 +3,8 @@ require('dotenv').config();
 import { Staff } from "../src/models/staff";
 import { Class } from "../src/models/class";
 import { Stream } from "../src/models/stream";
+import { Department } from "../src/models/department";
+import { DepartmentHeadHistory } from "../src/models/departmentHistory";
 
 
 const connection = new Sequelize({
@@ -11,8 +13,8 @@ const connection = new Sequelize({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  logging: false,
-  models: [Staff,Class,Stream],
+  logging: true,
+  models: [Staff,Class,Stream, Department, DepartmentHeadHistory],
 });
 
 export default connection;
