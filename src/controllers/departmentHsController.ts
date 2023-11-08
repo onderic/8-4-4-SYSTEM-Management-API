@@ -30,10 +30,33 @@ export const getDepartmentHistory = async (req: Request, res: Response) => {
   };
 
 
+
+export const getDepartments = async (req: Request, res: Response) => {
+    try {
+      const department = await DepartmentHeadHistory.findAll({
+        include: [
+          {
+            model: Staff,
+            as: 'head', 
+          },
+          {
+            model: Department,
+            as: 'department', 
+          }
+        ],
+      });
+  
+      res.status(200).json(department);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to retrieve Departments' });
+    }
+}
+
+
 export const updateDepartmentHead = async (req: Request, res: Response) => {
   try {
     const { departmentId, newHeadId, endDate } = req.body;
-    console.log(req.body)
     // Validate that the new head is a TEACHING staff member
     const newHead = await Staff.findByPk(newHeadId);
 

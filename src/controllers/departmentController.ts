@@ -67,27 +67,46 @@ export const getDepartments = async (req: Request, res: Response) => {
 
 export const updateDepartments  = async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const updates = { ...req.body };
-  
-      const [updatedRows] = await Department.update(updates, {
-        where: { id },
-      });
-  
-      if (updatedRows > 0) {
-        const updatedDepartment = await Department.findByPk(id);
-        if (updatedDepartment) {
-          res.status(200).json({ message: 'Department updated successfully', updatedDepartment });
-        } else {
-          res.status(404).json({ error: 'Department not found.' });
+        const { id } = req.params;
+        const { headId } = req.body;
+        
+        // Validate that the new head is a TEACHING staff member
+        const newHead = await Staff.findByPk(headId);
+
+        if (!newHead || newHead.dataValues.type !== 'TEACHING') {
+          return res.status(400).json({ error: "Invalid new department head. Must be a TEACHING staff member." });
         }
-      } else {
-        res.status(404).json({ error: 'Department not found.' });
+    
+        // Find the most recent department head entry for the department
+        const previousHeadEntry = await DepartmentHeadHistory.findOne({
+          where: {
+            departmentId: id,
+            endDate: null, // The previous head's entry is currently active
+          },
+        });
+    
+        if (!previousHeadEntry) {
+          return res.status(404).json({ error: "Department or previous head not found." });
+        }
+    
+        // Update the previous head's entry with the end date
+        if (previousHeadEntry) {
+          await previousHeadEntry.update({ endDate: new Date() });
+        }
+    
+        // Create a new entry for the new department head
+        const newHeadEntry = await DepartmentHeadHistory.create({
+            departmentId: id,
+            headId: headId,
+            startDate: new Date(),
+            endDate: null, // The new head is currently active
+        } as unknown as DepartmentHeadHistory);
+    
+        res.status(200).json({ message: "Department head updated successfully", newHeadEntry });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update department head. Try again later." });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to update the Department' });
-    }
   };
 
 export const deleteDepartmentHead = async (req:Request, res:Response)=>{

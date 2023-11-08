@@ -8,10 +8,13 @@ const baseRoute = '/departmentHs';
 
 
 // // GET /staff/all - Get all staff
-router.get(`${baseRoute}/:id`, departmentHsController.getDepartmentHistory);
+// router.get(`${baseRoute}/:id`, departmentHsController.getDepartmentHistory);
+
 
 // // PUT /staff/:id - Update a staff
 router.put(`${baseRoute}/update`, departmentHsController.updateDepartmentHead);
+
+router.get(`${baseRoute}/all`, departmentHsController.getDepartments);
 
 // // DELETE /staff/:id - Delete a staff
 // router.delete(`${baseRoute}/:id`, departmentController.deleteStaff);

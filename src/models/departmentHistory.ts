@@ -14,12 +14,15 @@ import {
   
 @Table({
     timestamps: false,
-    tableName:"Department_History"
+    tableName:"department_History"
 })
 export class DepartmentHeadHistory extends Model<DepartmentHeadHistory> {
   @ForeignKey(() => Staff)
   @Column
   headId!: number;
+
+  @BelongsTo(() => Staff)
+  head!: Staff;
 
   @Column({
     type: DataType.DATE,
@@ -39,9 +42,6 @@ export class DepartmentHeadHistory extends Model<DepartmentHeadHistory> {
 
   @BelongsTo(() => Department)
   department!: Department;
-
-  @BelongsTo(() => Staff)
-  head!: Staff;
 }
 
 
