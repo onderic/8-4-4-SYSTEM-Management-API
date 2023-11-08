@@ -10,7 +10,11 @@ import {
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 
-@Table
+@Table({
+  timestamps: true,
+  tableName: "classes",
+})
+
 export class Class extends Model<Class> {
   @Column({
     type: DataType.STRING,

@@ -4,7 +4,10 @@ import { Table, Model, Column, DataType, BelongsTo,  ForeignKey, Unique } from "
 import { Staff } from "./staff";
 import { Class } from "./class"; 
 
-@Table
+@Table({
+  timestamps: true,
+  tableName: "streams",
+})
 export class Stream extends Model<Stream> {
   @Column({
     type: DataType.STRING,
@@ -19,7 +22,7 @@ export class Stream extends Model<Stream> {
   abbreviation!: string;
 
   @ForeignKey(() => Staff)
-  @Unique
+  // @Unique
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -31,7 +34,6 @@ export class Stream extends Model<Stream> {
   staff!: Staff;
 
   @ForeignKey(() => Class)
-  @Unique
   @Column({
     type: DataType.INTEGER,
     allowNull: false,

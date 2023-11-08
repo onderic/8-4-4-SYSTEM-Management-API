@@ -22,7 +22,7 @@ const start = async (): Promise<void> => {
     // Synchronize the model with the database to create the table
     await Staff.sync(); 
     await Class.sync();
-    await Stream.sync({force:true});
+    // await Stream.sync({force:true});
 
     
     await connection.authenticate();
