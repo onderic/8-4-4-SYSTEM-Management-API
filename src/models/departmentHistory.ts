@@ -1,20 +1,17 @@
 import {
-    Table,
-    Model,
-    Column,
-    DataType,
-    BelongsTo,
-    ForeignKey,
-    HasMany,
-  } from "sequelize-typescript";
-  import { Staff } from "./staff";
-  import { Department } from "./department"
-  
+  Table,
+  Model,
+  Column,
+  DataType,
+  BelongsTo,
+  ForeignKey,
+} from "sequelize-typescript";
+import { Staff } from "./staff";
+import { Department } from "./department";
 
-  
 @Table({
-    timestamps: false,
-    tableName:"department_History"
+  timestamps: true,
+  tableName: "department_History",
 })
 export class DepartmentHeadHistory extends Model<DepartmentHeadHistory> {
   @ForeignKey(() => Staff)
@@ -35,17 +32,18 @@ export class DepartmentHeadHistory extends Model<DepartmentHeadHistory> {
     allowNull: true,
   })
   endDate!: Date | null;
-  
+
   @ForeignKey(() => Department)
   @Column
   departmentId!: number;
 
   @BelongsTo(() => Department)
   department!: Department;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  active!: boolean;
 }
-
-
-
-
-
-
