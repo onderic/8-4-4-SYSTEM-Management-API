@@ -42,4 +42,5 @@ export class Stream extends Model<Stream> {
 
   @BelongsTo(() => Class, 'classId')
   class!: Class;
+    head: any;
 }

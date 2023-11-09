@@ -4,11 +4,12 @@ import {
   Column,
   DataType,
   BelongsTo,
-  BeforeValidate,
   ForeignKey,
-  Unique
+  Unique,
+  HasMany
 } from "sequelize-typescript";
 import { Staff } from "./staff";
+import { Stream } from "./stream";
 
 @Table({
   timestamps: true,
@@ -39,10 +40,7 @@ export class Class extends Model<Class> {
   @BelongsTo(() => Staff, 'headId')
   head!: Staff;
 
-  // @BeforeValidate
-  // static validateHeadType(instance: Class) {
-  //   if (instance.head && instance.head.type !== "TEACHING") {
-  //     throw new Error("The head of a class must be of type TEACHING.");
-  //   }
-  // }
+  @HasMany(() => Stream)
+  streams!: Stream[];
+
 }

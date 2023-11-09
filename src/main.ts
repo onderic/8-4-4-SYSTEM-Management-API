@@ -5,6 +5,7 @@ import classRoutes from './routes/classRoutes';
 import streamRoutes from './routes/streamRoutes';
 import departmentRoutes from './routes/departmentRoutes';
 import departmentHsRoutes from './routes/departmentHsRoutes';
+import dataFetching from './routes/dataFetching';
 import * as bodyParser from 'body-parser';
 import connection from "../config/database";
 import { Staff } from './models/staff'; 
@@ -22,12 +23,13 @@ app.use('/api', classRoutes);
 app.use('/api', streamRoutes);
 app.use('/api', departmentRoutes);
 app.use('/api', departmentHsRoutes);
+app.use('/api', dataFetching);
 
 const start = async (): Promise<void> => {
   try {
     // Synchronize the model with the database to create the table
-    await Staff.sync(); 
-    await Class.sync();
+    // await Staff.sync({force:true}); 
+    // await Class.sync();
     // await Department.sync({force:true});
     // await DepartmentHeadHistory.sync({force:true});
     // await Stream.sync({force:true});
