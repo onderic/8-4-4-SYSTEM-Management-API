@@ -59,22 +59,21 @@ export const getStreams = async (req: Request, res: Response) => {
 export const updateStream = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updates = { ...req.body };
+    const { name, abbreviation, teacher, classId } = req.body;
 
-    const [updatedRows] = await Stream.update(updates, {
-      where: { id },
+    const existingStream = await Stream.findByPk(id);
+
+    if (!existingStream) {
+      res.status(404).json({ message: 'Stream not found' });
+      return;
+    }
+
+    const updatedStream = await existingStream.update({
+      name, abbreviation, teacher, classId
     });
 
-    if (updatedRows > 0) {
-      const updatedStream = await Stream.findByPk(id);
-      if (updatedStream) {
-        res.status(200).json({ message: 'Stream updated successfully', updatedStream });
-      } else {
-        res.status(404).json({ error: 'Stream not found.' });
-      }
-    } else {
-      res.status(404).json({ error: 'Stream not found.' });
-    }
+    res.json({ message: 'Stream updated successfully',updatedStream });
+   
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to update the stream' });

@@ -4,65 +4,72 @@ import { Department } from "../models/department";
 import { DepartmentHeadHistory } from "../models/departmentHistory"
 
 
-export const createDepartment = async (req:Request, res:Response) =>{
-    try{
-        const { name, headId } = req.body
+export const createDepartment = async (req: Request, res: Response) => {
+  try {
+    const { name, headId } = req.body;
 
-        const existingDepartmentWithHead = await Department.findOne({
-            where: {
-              headId,
-            },
-          });
-      
-          if (existingDepartmentWithHead) {
-            return res.status(400).json({
-              error: "The staff is already leading another department.",
-            });
-        }
-        const head = await Staff.findByPk(headId);
+    const existingDepartmentWithHead = await Department.findOne({
+      where: {
+        headId,
+      },
+    });
 
-        if (!head || head.dataValues.type !== 'TEACHING') {
-            return res.status(400).json({ error: "Invalid department head.Or Must be a TEACHING staff member." });
-        }
-
-        // create department
-        const department = await Department.create({
-            name,
-            headId
-        } as Department);
-
-        // Create an entry in DepartmentHeadHistory
-        await DepartmentHeadHistory.create({
-            departmentId: department.id,
-            headId: headId,
-            startDate:new Date(),
-            endDate: null
-        }as DepartmentHeadHistory);
-        // console.log("New dep history", DepartmentHeadHistory)
-        res.status(201).json({ message: "Department created successfully", department });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ error: "Failed to create a department try again later" });
+    if (existingDepartmentWithHead) {
+      return res.status(400).json({
+        error: "The staff is already leading another department.",
+      });
     }
-}
+
+    const head = await Staff.findByPk(headId);
+
+    if (!head) {
+      return res.status(400).json({ error: "The department head does not exist." });
+    }
+
+    if (head.dataValues.type !== 'TEACHING') {
+      return res.status(400).json({
+        error: "Invalid department head. Must be a TEACHING staff member.",
+      });
+    }
+
+    const department = await Department.create({
+      name,
+      headId,
+    } as Department);
+
+    await DepartmentHeadHistory.create({
+      departmentId: department.id,
+      headId,
+      startDate: new Date(),
+      endDate: null,
+      active: true,
+    } as DepartmentHeadHistory);
+
+    res.status(201).json({ message: "Department created successfully", department });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to create a department. Try again later." });
+  }
+};
+
 
 export const getDepartments = async (req: Request, res: Response) => {
-    try {
-      const department = await Department.findAll({
-        include: [
-          {
-            model: Staff,
-            as: 'head', 
-          }
-        ],
-      });
-  
-      res.status(200).json(department);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to retrieve Departments' });
-    }
-}
+  try {
+    const departments = await Department.findAll({
+      include: [
+        {
+          model: Staff,
+          as: 'head',
+        },
+      ],
+    });
+
+    res.status(200).json(departments);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve departments' });
+  }
+};
 
 
 export const updateDepartments = async (req: Request, res: Response) => {

@@ -70,8 +70,6 @@ export const updateClass = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Class not found' });
     }
 
-    // Check if the headId is provided and valid, similar to the createClass logic
-
     if (headId) {
       const head = await Staff.findByPk(headId);
 
@@ -83,19 +81,19 @@ export const updateClass = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'The staff member must be of type TEACHING.' });
       }
     }
+    
+    const updatedClass = await classToUpdate.update({
+      name,
+      abbreviation,
+      headId
+    });
 
-    // Update the class attributes
-    classToUpdate.name = name;
-    classToUpdate.abbreviation = abbreviation;
-    classToUpdate.headId = headId;
-    await classToUpdate.save();
-
-    res.status(200).json({ message: 'Class updated successfully', updatedClass: classToUpdate });
+    res.status(200).json({ message: 'Class updated successfully', updatedClass });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to update class' });
   }
-}
+};
 
 export const deleteClass = async (req: Request, res: Response) => {
   const { id } = req.params;

@@ -34,33 +34,23 @@ export const getAllStaffs = async (req:Request, res:Response): Promise<void> =>{
 export const updateStaff = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { field, value } = req.body;
+    const { name, number, type } = req.body;
 
     // Check if the staff member exists
     const existingStaff = await Staff.findByPk(id);
-
-    console.log("Available",existingStaff)
 
     if (!existingStaff) {
       res.status(404).json({ message: 'Staff not found' });
       return;
     }
 
-    // Update the staff's data based on the provided field
-    if (field === 'name') {
-      existingStaff.name = value;
-    } else if (field === 'number') {
-      existingStaff.number = value;
-    } else if (field === 'type') {
-      existingStaff.type = value;
-    } else {
-      res.status(400).json({ message: 'Invalid field for update' });
-      return;
-    }
+    const updatedStaff = await existingStaff.update({
+      name,
+      number,
+      type
+    });
 
-    await existingStaff.save();
-
-    res.json({ message: 'Staff updated successfully', staff: existingStaff });
+    res.json({ message: 'Staff updated successfully',updatedStaff });
   } catch (error) {
     console.error('Error updating staff:', error);
     res.status(500).json({ message: 'Error updating staff' });
