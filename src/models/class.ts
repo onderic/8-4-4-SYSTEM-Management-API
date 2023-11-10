@@ -22,7 +22,7 @@ export class Class extends Model<Class> {
     allowNull: false,
   })
   name!: string;
-
+  
   @Column({
     type: DataType.STRING,
     allowNull: false,

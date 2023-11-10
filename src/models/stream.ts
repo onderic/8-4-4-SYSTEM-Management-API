@@ -9,12 +9,14 @@ import { Class } from "./class";
   tableName: "streams",
 })
 export class Stream extends Model<Stream> {
+  @Unique
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
   name!: string;
 
+  @Unique
   @Column({
     type: DataType.STRING,
     allowNull: false,

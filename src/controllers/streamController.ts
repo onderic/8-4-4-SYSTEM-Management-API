@@ -8,12 +8,10 @@ export const createStream = async (req: Request, res: Response) => {
     const { name, abbreviation, teacher, classId } = req.body;
 
     // Check if the teacher and classId exist
-    const [checkDetails, foundClass] = await Promise.all([
-      Staff.findByPk(teacher),
-      Class.findByPk(classId),
-    ]);
+    const existingTeacher = await Class.findByPk(teacher);
+    const existingclassId = await Class.findByPk(classId);
 
-    if (!checkDetails || !foundClass) {
+    if (!existingTeacher || !existingclassId) {
       return res.status(400).json({ error: "Invalid teacher or classId." });
     }
 
