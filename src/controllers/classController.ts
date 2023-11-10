@@ -7,23 +7,36 @@ export const createClass = async (req: Request, res: Response) => {
   try {
     const { name, abbreviation, headId } = req.body;
 
-    if (headId) {
-      const head = await Staff.findByPk(headId);
+    // Check if required fields are provided
+    if (!name || !abbreviation || !headId) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
 
+    const existingClassByName = await Class.findOne({ where: { name } });
+    if (existingClassByName) {
+      return res.status(400).json({ error: "A class with the same name already exists." });
+    }
+
+    const existingAbbreviation = await Class.findOne({ where: { abbreviation } });
+    if (existingAbbreviation) {
+      return res.status(400).json({ error: "Abbreviation already exists." });
+    }
+
+    if (headId) {
+      // Check if the staff member with headId exists and is of type TEACHING
+      const head = await Staff.findByPk(headId);
       if (!head) {
         return res.status(400).json({ error: "Invalid headId. Staff member not found." });
       }
-
       if (head.dataValues.type !== 'TEACHING') {
         return res.status(400).json({ error: "The staff member must be of type TEACHING." });
       }
 
-      const existingClass = await Class.findOne({ where: { headId } });
-
-      if (existingClass) {
+      // Check if the staff member is already assigned to another class
+      const existingClassByHeadId = await Class.findOne({ where: { headId } });
+      if (existingClassByHeadId) {
         return res.status(400).json({ error: "The staff member is already assigned to another class." });
       }
-
     }
 
     const newClass = await Class.create({
@@ -38,6 +51,7 @@ export const createClass = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to create class. Try again.' });
   }
 };
+
 
 
 export const getClasses = async (req: Request, res: Response) => {

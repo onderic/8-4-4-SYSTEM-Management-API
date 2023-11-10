@@ -8,16 +8,16 @@ export const createDepartment = async (req: Request, res: Response) => {
   try {
     const { name, headId } = req.body;
 
-    const existingDepartmentWithHead = await Department.findOne({
-      where: {
-        headId,
-      },
-    });
+    if (!name || !headId) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
 
-    if (existingDepartmentWithHead) {
-      return res.status(400).json({
-        error: "The staff is already leading another department.",
-      });
+
+    // Check if a department with the same name already exists
+    const existingDepartment = await Department.findOne({ where: { name } });
+
+    if (existingDepartment) {
+      return res.status(400).json({ error: "A department with the same name already exists." });
     }
 
     const head = await Staff.findByPk(headId);
@@ -30,6 +30,11 @@ export const createDepartment = async (req: Request, res: Response) => {
       return res.status(400).json({
         error: "Invalid department head. Must be a TEACHING staff member.",
       });
+    }
+      // Check if the staff member is already assigned to another class
+    const existingHeadId = await Department.findOne({ where: { headId } });
+    if (existingHeadId) {
+      return res.status(400).json({ error: "The head is already assigned to another department." });
     }
 
     const department = await Department.create({
@@ -83,47 +88,50 @@ export const updateDepartments = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Department not found." });
     }
 
-    const existingDepartment = await Department.findOne({ where: { headId } });
+    // Check if headId is provided before querying for an existing department
+    if (headId) {
+      const existingDepartment = await Department.findOne({ where: { headId } });
 
-    if (existingDepartment && existingDepartment.id !== department.id) {
-      return res.status(400).json({ error: "The department head is already heading another department." });
-    }
+      if (existingDepartment && existingDepartment.id !== department.id) {
+        return res.status(400).json({ error: "The department head is already heading another department." });
+      }
 
-    const newHead = await Staff.findByPk(headId);
+      const newHead = await Staff.findByPk(headId);
 
-    if (!newHead) {
-      return res.status(400).json({ error: "The new department head does not exist." });
-    }
+      if (!newHead) {
+        return res.status(400).json({ error: "The new department head does not exist." });
+      }
 
-    if (newHead.dataValues.type !== 'TEACHING') {
-      return res.status(400).json({ error: "Invalid new department head. Must be a TEACHING staff member." });
-    }
+      if (newHead.dataValues.type !== 'TEACHING') {
+        return res.status(400).json({ error: "Invalid new department head. Must be a TEACHING staff member." });
+      }
 
-    const previousHeadEntry = await DepartmentHeadHistory.findOne({
-      where: {
+      const previousHeadEntry = await DepartmentHeadHistory.findOne({
+        where: {
+          departmentId: id,
+          endDate: null,
+        },
+      });
+
+      if (previousHeadEntry && previousHeadEntry.dataValues.headId === headId) {
+        return res.status(200).json({ message: "This is the current head of department." });
+      }
+
+      if (previousHeadEntry) {
+        await previousHeadEntry.update({ endDate: new Date(), active: false });
+      }
+
+      await DepartmentHeadHistory.create({
         departmentId: id,
+        headId,
+        startDate: new Date(),
         endDate: null,
-      },
-    });
-
-    if (previousHeadEntry && previousHeadEntry.headId === headId) {
-      return res.status(200).json({ message: "This is the current head of department." });
+      } as unknown as DepartmentHeadHistory);
     }
-
-    if (previousHeadEntry) {
-      await previousHeadEntry.update({ endDate: new Date(), active: false });
-    }
-
-    await DepartmentHeadHistory.create({
-      departmentId: id,
-      headId,
-      startDate: new Date(),
-      endDate: null,
-    } as unknown as DepartmentHeadHistory);
 
     await department.update({ name, headId });
 
-    res.status(200).json({ message: "Department updated successfully" });
+    res.status(200).json({ message: "Department updated successfully", department });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to update department. Try again later." });

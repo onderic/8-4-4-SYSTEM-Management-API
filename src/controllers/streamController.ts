@@ -3,33 +3,41 @@ import { Stream } from "../models/stream";
 import { Class } from "../models/class";
 import { Staff } from "../models/staff";
 
+
 export const createStream = async (req: Request, res: Response) => {
   try {
     const { name, abbreviation, teacher, classId } = req.body;
 
-    // Check if the teacher and classId exist
-    const existingTeacher = await Class.findByPk(teacher);
-    const existingclassId = await Class.findByPk(classId);
+    const existingTeacher = await Staff.findByPk(teacher);
+    const existingClass = await Class.findByPk(classId);
 
-    if (!existingTeacher || !existingclassId) {
+    if (!existingTeacher || !existingClass) {
       return res.status(400).json({ error: "Invalid teacher or classId." });
     }
 
-    // Create a new stream
+    const existingStreamByName = await Stream.findOne({ where: { name } });
+    if (existingStreamByName) {
+      return res.status(400).json({ error: "A stream with the same name already exists." });
+    }
+
+    const existingAbbreviation = await Stream.findOne({ where: { abbreviation } });
+    if (existingAbbreviation) {
+      return res.status(400).json({ error: "Abbreviation already exists." });
+    }
+
     const newStream = await Stream.create({
       name,
       abbreviation,
       teacher,
       classId,
-    } as Stream );
+    } as Stream);
 
     res.status(201).json({ message: "Stream created successfully", newStream });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to create a stream' });
   }
-}
-
+};
 
 export const getStreams = async (req: Request, res: Response) => {
     try {
