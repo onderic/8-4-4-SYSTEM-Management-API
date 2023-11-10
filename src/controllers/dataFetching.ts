@@ -3,7 +3,36 @@ import { Staff } from "../models/staff";
 import { Class } from "../models/class";
 import { Stream } from "../models/stream";
 import { Department } from "../models/department";  
-import { DepartmentHeadHistory } from "../models/departmentHistory";  
+import { DepartmentHeadHistory } from "../models/departmentHistory"; 
+
+
+export const getAllStaffMembers = async (req: Request, res: Response) => {
+  try {
+    // Fetch all staff members
+    const staffList = await Staff.findAll({
+      include: [
+        {
+        model: Class,
+        attributes: ['name', 'abbreviation'],
+      },
+      {
+        model:Stream,
+        attributes: ['name', 'abbreviation'],
+      },
+      {
+        model:Department,
+        attributes: ['name'],
+      }
+    ],
+    });
+
+    res.status(200).json(staffList);
+  } catch (error) {
+    console.error("Error fetching staff:", error);
+    res.status(500).json({ error: 'Failed to retrieve staff information' });
+  }
+};
+
 
 export const classesInfomation = async (req: Request, res: Response) => {
     try {
@@ -35,22 +64,6 @@ export const classesInfomation = async (req: Request, res: Response) => {
       }
 };
 
-
-
-export const getAllStaffWithAssociations = async (req: Request, res: Response) => {
-  try {
-    // Fetch all staff members
-    const staffList = await Staff.findAll();
-
-    res.status(200).json(staffList);
-  } catch (error) {
-    console.error("Error fetching staff:", error);
-    res.status(500).json({ error: 'Failed to retrieve staff information' });
-  }
-};
-
-
-
 export const getAllDepartments = async (req: Request, res: Response) => {
   try {
     // Fetch all departments
@@ -60,6 +73,19 @@ export const getAllDepartments = async (req: Request, res: Response) => {
           model: Staff,
           as: 'head',
           attributes: ['name', 'number'],
+        },
+        {
+          model: DepartmentHeadHistory,
+          as: 'headHistory',
+          attributes: ['startDate', 'endDate','active'],
+          // where: { active: true },
+          include: [
+            {
+              model: Staff,
+              as: 'head',
+              attributes: ['name', 'number'],
+            },
+          ],
         },
       ],
     });
@@ -71,30 +97,25 @@ export const getAllDepartments = async (req: Request, res: Response) => {
   }
 };
 
-
-export const getDepartmentHistory = async (req: Request, res: Response) => {
+export const getAllDepartmentHistory = async (req: Request, res: Response) => {
     try {
-        const { departmentId } = req.params;
-    
-        if (!departmentId) {
-            return res.status(400).json({ error: 'Department ID is required' });
-        }
-    
-        // Fetch department histories for a specific department
         const departmentHistories = await DepartmentHeadHistory.findAll({
-            where: {
-                departmentId
-            },
+          attributes: ['id','startDate', 'endDate', 'active'],
             include: [
-            {
-                model: Staff,
-                as: 'head',
-                attributes: ['name', 'number'],
-            },
-            ],
-            order: [
-            ['updatedAt', 'DESC'], // Order by updatedAt in descending order to get the history
-            ],
+              {
+                model: Department,
+                as: 'department',
+                attributes: ['name'],
+              },
+              {
+                  model: Staff,
+                  as: 'head',
+                  attributes: ['name', 'number'],
+              },
+              ],
+              order: [
+              ['updatedAt', 'DESC'], 
+              ],
         });
   
       res.status(200).json(departmentHistories);

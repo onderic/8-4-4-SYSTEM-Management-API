@@ -40,6 +40,7 @@ export class Class extends Model<Class> {
   @BelongsTo(() => Staff, 'headId')
   head!: Staff;
 
+
   @HasMany(() => Stream)
   streams!: Stream[];
 

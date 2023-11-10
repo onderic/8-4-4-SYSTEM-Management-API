@@ -1,4 +1,8 @@
-import { Table, Model, Column, DataType } from "sequelize-typescript";
+import { Table, Model, Column, DataType,HasOne,HasMany } from "sequelize-typescript";
+import { Class } from "./class";
+import { Stream } from "./stream";
+import { Department } from "./department";
+
 
 @Table({
     timestamps: true,
@@ -23,4 +27,13 @@ export class Staff extends Model{
         allowNull: false,
     })
     type!: "TEACHING" | "NON-TEACHING";
+
+    @HasOne(() => Class)
+    class!: Class; 
+
+    @HasMany(() => Stream)
+    stream!: Stream; 
+
+    @HasMany(() => Department)
+    department!: Department; 
 }

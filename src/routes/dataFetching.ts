@@ -3,13 +3,13 @@ import * as dataFetching from '../controllers/dataFetching';
 
 const router = express.Router();
 
-router.get('/classinfo', dataFetching.classesInfomation);
+router.get('/allStaff', dataFetching.getAllStaffMembers);
 
-router.get('/allStaff', dataFetching.getAllStaffWithAssociations);
+router.get('/classinfo', dataFetching.classesInfomation);
 
 router.get('/getAllDptm', dataFetching.getAllDepartments);
 
-router.get('/getAllDptmHs/:departmentId', dataFetching.getDepartmentHistory);
+router.get('/getAllDptmtHistory', dataFetching.getAllDepartmentHistory);
 
 
 
