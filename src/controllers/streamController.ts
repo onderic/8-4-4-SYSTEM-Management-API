@@ -38,10 +38,12 @@ export const getStreams = async (req: Request, res: Response) => {
           {
             model: Staff,
             as: 'staff', 
+            attributes: ['name', 'number'],
           },
           {
             model: Class,
             as: 'class',
+            attributes: ['name', 'abbreviation'],
           },
         ],
       });
