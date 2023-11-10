@@ -48,7 +48,7 @@ export const getClasses = async (req: Request, res: Response) => {
         {
           model: Staff,
           as: 'head', 
-          attributes: ['name', 'number'],
+          attributes: ['id','name', 'number'],
         },
       ],
     });
