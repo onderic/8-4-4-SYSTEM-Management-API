@@ -9,9 +9,8 @@ import {
 import { Staff } from "./staff";
 import { Department } from "./department";
 
-
 interface DepartmentHeadHistoryAttributes {
-  departmentId:number;
+  departmentId: number;
   startDate: Date;
   endDate: Date | null;
   active: boolean;
@@ -22,9 +21,11 @@ interface DepartmentHeadHistoryAttributes {
   timestamps: true,
   tableName: "department_History",
 })
-export class DepartmentHeadHistory extends Model<DepartmentHeadHistory, DepartmentHeadHistoryAttributes> {
+export class DepartmentHeadHistory extends Model<DepartmentHeadHistoryAttributes> {
   @ForeignKey(() => Staff)
-  @Column
+  @Column({
+    allowNull: false,
+  })
   headId!: number;
 
   @BelongsTo(() => Staff)
@@ -43,7 +44,9 @@ export class DepartmentHeadHistory extends Model<DepartmentHeadHistory, Departme
   endDate!: Date | null;
 
   @ForeignKey(() => Department)
-  @Column
+  @Column({
+    allowNull: false,
+  })
   departmentId!: number;
 
   @BelongsTo(() => Department)

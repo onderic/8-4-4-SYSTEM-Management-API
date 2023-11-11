@@ -6,33 +6,41 @@ import { Staff } from "../models/staff";
 
 export const createStream = async (req: Request, res: Response) => {
   try {
-    const { name, abbreviation, teacher, classId } = req.body;
+    const { name, abbreviation, teacherId, classId } = req.body;
 
-    const existingTeacher = await Staff.findByPk(teacher);
+    if (!name || !abbreviation || !teacherId || !classId) {
+      res.status(400).json({ error: 'All fields are required' });
+      return;
+    }
+
+    const existingTeacher = await Staff.findByPk(teacherId);
     const existingClass = await Class.findByPk(classId);
 
     if (!existingTeacher || !existingClass) {
-      return res.status(400).json({ error: "Invalid teacher or classId." });
+      return res.status(400).json({ error: 'Invalid teacherId or classId.' });
     }
 
-    const existingStreamByName = await Stream.findOne({ where: { name } });
-    if (existingStreamByName) {
-      return res.status(400).json({ error: "A stream with the same name already exists." });
-    }
+    // Check for the uniqueness of the stream name and abbreviation within the class
+    const existingStreamInClass = await Stream.findOne({
+      where: {
+        name,
+        abbreviation,
+        classId,
+      },
+    });
 
-    const existingAbbreviation = await Stream.findOne({ where: { abbreviation } });
-    if (existingAbbreviation) {
-      return res.status(400).json({ error: "Abbreviation already exists." });
+    if (existingStreamInClass) {
+      return res.status(400).json({ error: 'A stream with the same name and abbreviation already exists in this class.' });
     }
 
     const newStream = await Stream.create({
       name,
       abbreviation,
-      teacher,
+      teacherId,
       classId,
-    } as Stream);
+    });
 
-    res.status(201).json({ message: "Stream created successfully", newStream });
+    res.status(201).json({ message: 'Stream created successfully', newStream });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -40,34 +48,33 @@ export const createStream = async (req: Request, res: Response) => {
 };
 
 export const getStreams = async (req: Request, res: Response) => {
-    try {
-      const streams = await Stream.findAll({
-        include: [
-          {
-            model: Staff,
-            as: 'staff', 
-            attributes: ['name', 'number'],
-          },
-          {
-            model: Class,
-            as: 'class',
-            attributes: ['name', 'abbreviation'],
-          },
-        ],
-      });
-  
-      res.status(200).json(streams);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-}
+  try {
+    const streams = await Stream.findAll({
+      include: [
+        {
+          model: Staff,
+          as: 'teacher',
+          attributes: ['name', 'number'],
+        },
+        {
+          model: Class,
+          as: 'streamClass',
+          attributes: ['name', 'abbreviation'],
+        },
+      ],
+    });
 
+    res.status(200).json(streams);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 export const updateStream = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, abbreviation, teacher, classId } = req.body;
+    const { name, abbreviation, teacherId, classId } = req.body;
 
     const existingStream = await Stream.findByPk(id);
 
@@ -77,7 +84,7 @@ export const updateStream = async (req: Request, res: Response) => {
     }
 
     const updatedStream = await existingStream.update({
-      name, abbreviation, teacher, classId
+      name, abbreviation, teacherId, classId
     });
 
     res.json({ message: 'Stream updated successfully',updatedStream });

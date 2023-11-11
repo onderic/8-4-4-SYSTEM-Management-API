@@ -1,11 +1,8 @@
-// routes/staffRoutes.ts
-
 import { Router } from 'express';
 import * as streamController from '../controllers/streamController';
 
 const router = Router();
 
-// Define a base route for staff
 const baseRoute = '/stream';
 
 // POST /staff - Create a new staff

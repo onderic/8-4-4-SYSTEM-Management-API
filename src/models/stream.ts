@@ -1,22 +1,33 @@
-// models/stream.ts
-
-import { Table, Model, Column, DataType, BelongsTo,  ForeignKey, Unique } from "sequelize-typescript";
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  BelongsTo,
+  ForeignKey,
+  Unique,
+} from "sequelize-typescript";
 import { Staff } from "./staff";
-import { Class } from "./class"; 
+import { Class } from "./class";
+
+interface StreamAttributes {
+  name: string;
+  abbreviation: string;
+  teacherId: number;
+  classId: number;
+}
 
 @Table({
   timestamps: true,
   tableName: "streams",
 })
-export class Stream extends Model<Stream> {
-  @Unique
+export class Stream extends Model<StreamAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
   name!: string;
 
-  @Unique
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -24,16 +35,14 @@ export class Stream extends Model<Stream> {
   abbreviation!: string;
 
   @ForeignKey(() => Staff)
-  // @Unique
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  teacher!: number;
+  teacherId!: number;
 
-  // Define associations
-  @BelongsTo(() => Staff, "teacher")
-  staff!: Staff;
+  @BelongsTo(() => Staff, "teacherId")
+  teacher!: Staff;
 
   @ForeignKey(() => Class)
   @Column({
@@ -42,7 +51,6 @@ export class Stream extends Model<Stream> {
   })
   classId!: number;
 
-  @BelongsTo(() => Class, 'classId')
-  class!: Class;
-    head: any;
+  @BelongsTo(() => Class, "classId")
+  streamClass!: Class;
 }

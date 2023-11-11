@@ -19,6 +19,12 @@ export const getAllStaffMembers = async (req: Request, res: Response) => {
       {
         model:Stream,
         attributes: ['name', 'abbreviation'],
+        include: [
+          {
+            model: Class,
+            attributes: ['name', 'abbreviation'],
+          },
+        ],
       },
       {
         model:Department,
@@ -51,7 +57,7 @@ export const classesInfomation = async (req: Request, res: Response) => {
               include: [
                 {
                   model: Staff,
-                  as: 'staff',
+                  as: 'teacher',
                   attributes: ['name', 'number'],
                 },
               ],

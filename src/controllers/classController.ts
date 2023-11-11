@@ -97,6 +97,9 @@ export const updateClass = async (req: Request, res: Response) => {
       }
       const existingClass = await Class.findOne({ where: { headId } });
 
+      if (existingClass && existingClass.dataValues.headId === headId) {
+        return res.status(200).json({ message: "This is the current head of Class." });
+      }
       if (existingClass) {
         return res.status(400).json({ error: "The staff member is already assigned to another class." });
       }

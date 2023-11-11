@@ -6,7 +6,7 @@ import {
   BelongsTo,
   ForeignKey,
   Unique,
-  HasMany
+  HasMany,
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { Stream } from "./stream";
@@ -17,14 +17,11 @@ interface ClassAttributes {
   headId: number;
 }
 
-
-
 @Table({
   timestamps: true,
   tableName: "classes",
 })
-
-export class Class extends Model<Class,ClassAttributes> {
+export class Class extends Model<ClassAttributes> {
   @Unique
   @Column({
     type: DataType.STRING,
@@ -50,8 +47,6 @@ export class Class extends Model<Class,ClassAttributes> {
   @BelongsTo(() => Staff, 'headId')
   head!: Staff;
 
-
   @HasMany(() => Stream)
   streams!: Stream[];
 }
-

@@ -27,7 +27,7 @@ const start = async (): Promise<void> => {
   try {
     // Synchronize the model with the database to create the table
     // await Staff.sync({force:true}); 
-    // await Class.sync();
+    // await Class.sync({force:true});
     // await Department.sync({force:true});
     // await DepartmentHeadHistory.sync({force:true});
     // await Stream.sync({force:true});
@@ -45,9 +45,5 @@ const start = async (): Promise<void> => {
     process.exit(1);
   }
 };
-
-app.get('/api', (req, res) => {
-  res.send('Hello World!')
-})
 
 void start();
