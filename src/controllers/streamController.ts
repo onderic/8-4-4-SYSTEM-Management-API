@@ -35,7 +35,7 @@ export const createStream = async (req: Request, res: Response) => {
     res.status(201).json({ message: "Stream created successfully", newStream });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create a stream' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -59,7 +59,7 @@ export const getStreams = async (req: Request, res: Response) => {
       res.status(200).json(streams);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Failed to retrieve streams' });
+      res.status(500).json({ error: 'Internal server error' });
     }
 }
 
@@ -84,7 +84,7 @@ export const updateStream = async (req: Request, res: Response) => {
    
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to update the stream' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
   

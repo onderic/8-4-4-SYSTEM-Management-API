@@ -7,7 +7,6 @@ export const createClass = async (req: Request, res: Response) => {
   try {
     const { name, abbreviation, headId } = req.body;
 
-    // Check if required fields are provided
     if (!name || !abbreviation || !headId) {
       return res.status(400).json({ error: 'All fields are required' });
     }
@@ -43,7 +42,7 @@ export const createClass = async (req: Request, res: Response) => {
       name,
       abbreviation,
       headId,
-    } as Class);
+    });
 
     res.status(201).json({ message: "Class created successfully", newClass });
   } catch (error) {
@@ -112,7 +111,7 @@ export const updateClass = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Class updated successfully', updatedClass });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to update class' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -129,7 +128,7 @@ export const deleteClass = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Class Deleted successfully'});
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to delete class' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 

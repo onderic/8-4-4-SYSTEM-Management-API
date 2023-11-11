@@ -11,12 +11,20 @@ import {
 import { Staff } from "./staff";
 import { Stream } from "./stream";
 
+interface ClassAttributes {
+  name: string;
+  abbreviation: string;
+  headId: number;
+}
+
+
+
 @Table({
   timestamps: true,
   tableName: "classes",
 })
 
-export class Class extends Model<Class> {
+export class Class extends Model<Class,ClassAttributes> {
   @Unique
   @Column({
     type: DataType.STRING,
@@ -45,5 +53,5 @@ export class Class extends Model<Class> {
 
   @HasMany(() => Stream)
   streams!: Stream[];
-
 }
+

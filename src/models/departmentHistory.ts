@@ -9,11 +9,20 @@ import {
 import { Staff } from "./staff";
 import { Department } from "./department";
 
+
+interface DepartmentHeadHistoryAttributes {
+  departmentId:number;
+  startDate: Date;
+  endDate: Date | null;
+  active: boolean;
+  headId: number;
+}
+
 @Table({
   timestamps: true,
   tableName: "department_History",
 })
-export class DepartmentHeadHistory extends Model<DepartmentHeadHistory> {
+export class DepartmentHeadHistory extends Model<DepartmentHeadHistory, DepartmentHeadHistoryAttributes> {
   @ForeignKey(() => Staff)
   @Column
   headId!: number;

@@ -15,18 +15,18 @@ export const createStaff = async (req: Request, res: Response): Promise<void> =>
     res.status(201).json({ message: 'Staff created successfully', staff });
   } catch (error) {
     console.error('Error creating staff:', error);
-    res.status(500).json({ message: 'Error creating staff' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 
 export const getAllStaffs = async (req:Request, res:Response): Promise<void> =>{
-    try {
-        const Staffs = await Staff.findAll();
-        res.status(200).json(Staffs);
+    try{
+      const Staffs = await Staff.findAll();
+      res.status(200).json(Staffs);
     }catch(error){
-        console.error('Error fetching Staffs:', error);
-        res.status(500).json({ message: 'Error fetching Staffs' });
+      console.error('Error fetching Staffs:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
 }
 
@@ -53,7 +53,7 @@ export const updateStaff = async (req: Request, res: Response): Promise<void> =>
     res.json({ message: 'Staff updated successfully',updatedStaff });
   } catch (error) {
     console.error('Error updating staff:', error);
-    res.status(500).json({ message: 'Error updating staff' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -65,18 +65,17 @@ export const deleteStaff = async (req: Request, res: Response): Promise<void> =>
 
     // Check if the staff with the given ID exists
     const existingStaff = await Staff.findByPk(id);
-
+    
     if (!existingStaff) {
       res.status(404).json({ message: 'Staff not found' });
       return;
     }
-
     // Delete the staff
     await existingStaff.destroy();
 
     res.json({ message: 'Staff deleted successfully' });
   } catch (error) {
     console.error('Error deleting staff:', error);
-    res.status(500).json({ message: 'Error deleting staff' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

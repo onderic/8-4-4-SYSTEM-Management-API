@@ -10,6 +10,7 @@ export const getAllStaffMembers = async (req: Request, res: Response) => {
   try {
     // Fetch all staff members
     const staffList = await Staff.findAll({
+      attributes: ['id','name', 'number','type'],
       include: [
         {
         model: Class,
@@ -29,7 +30,7 @@ export const getAllStaffMembers = async (req: Request, res: Response) => {
     res.status(200).json(staffList);
   } catch (error) {
     console.error("Error fetching staff:", error);
-    res.status(500).json({ error: 'Failed to retrieve staff information' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -37,6 +38,7 @@ export const getAllStaffMembers = async (req: Request, res: Response) => {
 export const classesInfomation = async (req: Request, res: Response) => {
     try {
         const staffList = await Class.findAll({
+          attributes: ['name', 'abbreviation'],
           include: [
             {
               model: Staff,
@@ -60,7 +62,7 @@ export const classesInfomation = async (req: Request, res: Response) => {
         res.status(200).json(staffList);
       } catch (error) {
         console.error("Error fetching staff:", error);
-        res.status(500).json({ error: 'Failed to retrieve staff information' });
+        res.status(500).json({ error: 'Internal server error' });
       }
 };
 
@@ -68,6 +70,7 @@ export const getAllDepartments = async (req: Request, res: Response) => {
   try {
     // Fetch all departments
     const departmentsList = await Department.findAll({
+      attributes: ['id','name'],
       include: [
         {
           model: Staff,
@@ -86,6 +89,9 @@ export const getAllDepartments = async (req: Request, res: Response) => {
               attributes: ['name', 'number'],
             },
           ],
+          order: [
+            ['updatedAt', 'DESC'], 
+            ],
         },
       ],
     });
@@ -93,7 +99,7 @@ export const getAllDepartments = async (req: Request, res: Response) => {
     res.status(200).json(departmentsList);
   } catch (error) {
     console.error("Error fetching departments:", error);
-    res.status(500).json({ error: 'Failed to retrieve department information' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -121,7 +127,7 @@ export const getAllDepartmentHistory = async (req: Request, res: Response) => {
       res.status(200).json(departmentHistories);
     } catch (error) {
       console.error("Error fetching department history:", error);
-      res.status(500).json({ error: 'Failed to retrieve department history' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   };
   

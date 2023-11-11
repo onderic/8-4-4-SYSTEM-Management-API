@@ -12,12 +12,18 @@ import { Staff } from "./staff";
 import { DepartmentHeadHistory } from "./departmentHistory"
 
 
+interface DepartmentAttributes {
+  name: string;
+  headId: number;
+}
+
+
 @Table({
   timestamps: true,
   tableName: "departments",
 })
 
-export class Department extends Model<Department> {
+export class Department extends Model<Department, DepartmentAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,

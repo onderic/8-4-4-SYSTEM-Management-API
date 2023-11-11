@@ -40,7 +40,7 @@ export const createDepartment = async (req: Request, res: Response) => {
     const department = await Department.create({
       name,
       headId,
-    } as Department);
+    });
 
     await DepartmentHeadHistory.create({
       departmentId: department.id,
@@ -48,12 +48,12 @@ export const createDepartment = async (req: Request, res: Response) => {
       startDate: new Date(),
       endDate: null,
       active: true,
-    } as DepartmentHeadHistory);
+    });
 
     res.status(201).json({ message: "Department created successfully", department });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to create a department. Try again later." });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -72,7 +72,7 @@ export const getDepartments = async (req: Request, res: Response) => {
     res.status(200).json(departments);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve departments' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -134,7 +134,7 @@ export const updateDepartments = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Department updated successfully", department });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to update department. Try again later." });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -156,6 +156,6 @@ export const deleteDepartmentHead = async (req:Request, res:Response)=>{
 
     } catch (error) {
       console.error('Error deleting Department:', error);
-      res.status(500).json({ message: 'Error deleting Department' });
+      res.status(500).json({ error: 'Internal server error' });
     }
 }

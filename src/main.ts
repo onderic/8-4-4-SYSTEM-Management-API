@@ -4,7 +4,6 @@ import staffRoutes from './routes/staffRoutes';
 import classRoutes from './routes/classRoutes';
 import streamRoutes from './routes/streamRoutes';
 import departmentRoutes from './routes/departmentRoutes';
-import departmentHsRoutes from './routes/departmentHsRoutes';
 import dataFetching from './routes/dataFetching';
 import * as bodyParser from 'body-parser';
 import connection from "../config/database";
@@ -22,7 +21,6 @@ app.use('/api', staffRoutes);
 app.use('/api', classRoutes);
 app.use('/api', streamRoutes);
 app.use('/api', departmentRoutes);
-app.use('/api', departmentHsRoutes);
 app.use('/api', dataFetching);
 
 const start = async (): Promise<void> => {
