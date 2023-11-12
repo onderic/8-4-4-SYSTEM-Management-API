@@ -5,16 +5,16 @@ const router = Router();
 
 const baseRoute = '/stream';
 
-// POST /staff - Create a new staff
+// POST /stream - Create a new stream
 router.post(baseRoute, streamController.createStream);
 
-// GET /staff/all - Get all staff
+// GET /stream/all - Get all stream
 router.get(`${baseRoute}/all`, streamController.getStreams);
 
-// PUT /staff/:id - Update a staff
+// PUT /stream/:id - Update a stream
 router.put(`${baseRoute}/:id`, streamController.updateStream);
 
-// DELETE /staff/:id - Delete a staff
+// DELETE /stream/:id - Delete a stream
 router.delete(`${baseRoute}/:id`, streamController.deleteStream);
 
 export default router;

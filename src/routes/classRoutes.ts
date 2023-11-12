@@ -1,20 +1,21 @@
-// routes/staffRoutes.ts
 import { Router } from 'express';
 import * as classController from '../controllers/classController';
 
 const router = Router();
 
+const baseRoute = '/classes';
+
 // Create a new Class
-router.post('/classes', classController.createClass);
+router.post(`${baseRoute}`, classController.createClass);
 
 // Read Classes
-router.get('/classes', classController.getClasses);
+router.get(`${baseRoute}`, classController.getClasses);
 
 // Update a Class by ID
-router.put('/classes/:id', classController.updateClass);
+router.put(`${baseRoute}/:id`, classController.updateClass);
 
 // Delete a Class by ID
-router.delete('/classes/:id', classController.deleteClass);
+router.delete(`${baseRoute}/:id`, classController.deleteClass);
 
 export default router;
 

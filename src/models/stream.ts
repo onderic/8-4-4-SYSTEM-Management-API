@@ -4,8 +4,7 @@ import {
   Column,
   DataType,
   BelongsTo,
-  ForeignKey,
-  Unique,
+  ForeignKey
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { Class } from "./class";

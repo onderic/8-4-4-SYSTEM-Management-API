@@ -1,5 +1,4 @@
 // routes/staffRoutes.ts
-
 import { Router } from 'express';
 import * as staffController from '../controllers/staffController';
 

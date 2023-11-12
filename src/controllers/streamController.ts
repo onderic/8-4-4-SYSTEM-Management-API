@@ -20,6 +20,9 @@ export const createStream = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid teacherId or classId.' });
     }
 
+    if (existingTeacher.dataValues.type !== 'TEACHING') {
+      return res.status(400).json({ error: "The staff member must be of type TEACHING." });
+    }
     // Check for the uniqueness of the stream name and abbreviation within the class
     const existingStreamInClass = await Stream.findOne({
       where: {
@@ -50,6 +53,7 @@ export const createStream = async (req: Request, res: Response) => {
 export const getStreams = async (req: Request, res: Response) => {
   try {
     const streams = await Stream.findAll({
+      attributes: ['id','name', 'abbreviation'],
       include: [
         {
           model: Staff,
@@ -81,6 +85,14 @@ export const updateStream = async (req: Request, res: Response) => {
     if (!existingStream) {
       res.status(404).json({ message: 'Stream not found' });
       return;
+    }
+    const existingTeacher = await Staff.findByPk(teacherId);
+
+    if (!existingTeacher) {
+      return res.status(400).json({ error: 'Invalid teacherId' });
+    }
+    if (existingTeacher.dataValues.type !== 'TEACHING') {
+      return res.status(400).json({ error: "The staff member must be of type TEACHING." });
     }
 
     const updatedStream = await existingStream.update({

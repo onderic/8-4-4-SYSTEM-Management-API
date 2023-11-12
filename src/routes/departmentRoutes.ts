@@ -3,19 +3,19 @@ import * as departmentController from '../controllers/departmentController';
 
 const router = Router();
 
-// Define a base route for staff
+
 const baseRoute = '/department';
 
-// POST /staff - Create a new staff
+// POST /department - Create a new department
 router.post(baseRoute, departmentController.createDepartment);
 
-// // GET /staff/all - Get all staff
+// // GET /department/all - Get all department
 router.get(`${baseRoute}/all`, departmentController.getDepartments);
 
-// // PUT /staff/:id - Update a staff
+// // PUT /department/:id - Update a department
 router.put(`${baseRoute}/:id`, departmentController.updateDepartments);
 
-// // DELETE /staff/:id - Delete a staff
+// // DELETE /department/:id - Delete a department
 router.delete(`${baseRoute}/:id`, departmentController.deleteDepartmentHead);
 
 export default router;

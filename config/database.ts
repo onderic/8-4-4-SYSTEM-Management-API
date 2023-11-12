@@ -7,7 +7,7 @@ import { Department } from "../src/models/department";
 import { DepartmentHeadHistory } from "../src/models/departmentHistory";
 
 
-const connection = new Sequelize({
+const sequelize = new Sequelize({
   dialect: "postgres",
   host: process.env.DB_HOST,
   username: process.env.DB_USER,
@@ -17,6 +17,6 @@ const connection = new Sequelize({
   models: [Staff,Class,Stream, Department, DepartmentHeadHistory],
 });
 
-export default connection;
+export default sequelize;
 
 // sudo -u postgres psql -d sqltest

@@ -81,11 +81,7 @@ export const updateDepartments = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, headId } = req.body;
-    const parsedId = parseInt(id, 10);
-
-    if (isNaN(parsedId)) {
-      return res.status(400).json({ error: "Invalid department ID. Must be a number." });
-    }
+    
     const department = await Department.findByPk(id);
 
     if (!department) {
