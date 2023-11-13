@@ -31,7 +31,7 @@ export const createDepartment = async (req: Request, res: Response) => {
         error: "Invalid department head. Must be a TEACHING staff member.",
       });
     }
-      // Check if the staff member is already assigned to another class
+      // Check if the staff member is already assigned to another department
     const existingHeadId = await Department.findOne({ where: { headId } });
     if (existingHeadId) {
       return res.status(400).json({ error: "The head is already assigned to another department." });
@@ -61,10 +61,12 @@ export const createDepartment = async (req: Request, res: Response) => {
 export const getDepartments = async (req: Request, res: Response) => {
   try {
     const departments = await Department.findAll({
+      attributes: ['id','name'],
       include: [
         {
           model: Staff,
           as: 'head',
+          attributes: ['id','name', 'number','type'],
         },
       ],
     });
@@ -87,7 +89,12 @@ export const updateDepartments = async (req: Request, res: Response) => {
     if (!department) {
       return res.status(404).json({ error: "Department not found." });
     }
-    
+    // Check if a department with the same name already exists
+    const existingDepartment = await Department.findOne({ where: { name } });
+
+    if (existingDepartment) {
+      return res.status(400).json({ error: "A department with the same name already exists." });
+    }
     // Check if headId is provided before querying for an existing department
     if (headId) {
       const existingDepartment = await Department.findOne({ where: { headId } });
@@ -103,7 +110,7 @@ export const updateDepartments = async (req: Request, res: Response) => {
       }
 
       if (newHead.dataValues.type !== 'TEACHING') {
-        return res.status(400).json({ error: "Invalid new department head. Must be a TEACHING staff member." });
+        return res.status(400).json({ error: "Must be a TEACHING staff member." });
       }
 
       const previousHeadEntry = await DepartmentHeadHistory.findOne({
