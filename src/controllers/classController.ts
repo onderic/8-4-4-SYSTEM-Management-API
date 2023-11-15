@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { Class } from "../models/class";
 import { Staff } from "../models/staff";
+import { UniqueConstraintError } from 'sequelize';
+
 
 
 export const createClass = async (req: Request, res: Response) => {
@@ -11,17 +13,10 @@ export const createClass = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const existingClassByName = await Class.findOne({ where: { name } });
-    if (existingClassByName) {
-      return res.status(400).json({ error: "A class with the same name already exists." });
-    }
+    try {
+      // Check if a class with the same name already exists
+      await Class.create({ name, abbreviation, headId }); 
 
-    const existingAbbreviation = await Class.findOne({ where: { abbreviation } });
-    if (existingAbbreviation) {
-      return res.status(400).json({ error: "Abbreviation already exists." });
-    }
-
-    if (headId) {
       // Check if the staff member with headId exists and is of type TEACHING
       const head = await Staff.findByPk(headId);
       if (!head) {
@@ -31,20 +26,28 @@ export const createClass = async (req: Request, res: Response) => {
         return res.status(400).json({ error: "The staff member must be of type TEACHING." });
       }
 
-      // Check if the staff member is already assigned to another class
       const existingClassByHeadId = await Class.findOne({ where: { headId } });
       if (existingClassByHeadId) {
         return res.status(400).json({ error: "The staff member is already assigned to another class." });
       }
+
+      // If all checks pass, create the new class
+      const newClass = await Class.create({
+        name,
+        abbreviation,
+        headId,
+      });
+
+      res.status(201).json({ message: "Class created successfully", newClass });
+    } catch (error) {
+      // Handle UniqueConstraintError
+      if (error instanceof UniqueConstraintError) {
+        return res.status(400).json({ error: "A class with the same name or abbreviation already exists." });
+      }
+
+      console.error(error);
+      res.status(500).json({ error: 'Failed to create class. Try again.' });
     }
-
-    const newClass = await Class.create({
-      name,
-      abbreviation,
-      headId,
-    });
-
-    res.status(201).json({ message: "Class created successfully", newClass });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to create class. Try again.' });

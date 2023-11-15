@@ -7,11 +7,14 @@ import {
   ForeignKey,
   Unique,
   HasMany,
+  BelongsToMany
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { Stream } from "./stream";
+import { Subject } from "./subject";
 
 interface ClassAttributes {
+  // id:number;
   name: string;
   abbreviation: string;
   headId: number;
@@ -49,4 +52,11 @@ export class Class extends Model<ClassAttributes> {
 
   @HasMany(() => Stream)
   streams!: Stream[];
+
+  // @BelongsToMany(() => Subject, {
+  //   through: 'SubjectClass',
+  //   foreignKey: 'classId',
+  //   otherKey: 'subjectId',
+  // })
+  // subjects!: Subject[];
 }

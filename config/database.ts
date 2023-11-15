@@ -5,6 +5,9 @@ import { Class } from "../src/models/class";
 import { Stream } from "../src/models/stream";
 import { Department } from "../src/models/department";
 import { DepartmentHeadHistory } from "../src/models/departmentHistory";
+import { Subject } from "../src/models/subject";
+import { Exam } from "../src/models/exam";
+import { ExamSubject } from "../src/models/examSubjectPivot";
 
 
 const sequelize = new Sequelize({
@@ -13,8 +16,8 @@ const sequelize = new Sequelize({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  logging: true,
-  models: [Staff,Class,Stream, Department, DepartmentHeadHistory],
+  logging: false,
+  models: [Staff,Class,Stream, Department, DepartmentHeadHistory,Subject,Exam,ExamSubject],
 });
 
 export default sequelize;

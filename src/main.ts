@@ -7,6 +7,8 @@ import classRoutes from './routes/classRoutes';
 import streamRoutes from './routes/streamRoutes';
 import departmentRoutes from './routes/departmentRoutes';
 import dataFetching from './routes/dataFetching';
+import subjectRouter from './routes/subjectRouter';
+import examRouter from './routes/examRouter';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +22,8 @@ app.use('/api/v1', classRoutes);
 app.use('/api/v1', streamRoutes);
 app.use('/api/v1', departmentRoutes);
 app.use('/api/v1', dataFetching);
+app.use('/api/v1', subjectRouter);
+app.use('/api/v1', examRouter);
 
 // Database connection and server start
 const startServer = async (): Promise<void> => {
