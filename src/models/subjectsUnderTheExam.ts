@@ -1,29 +1,28 @@
 import {
-    Table,
-    Model,
-    Column,
-    DataType,
-    ForeignKey,
-    BelongsTo,
-    HasMany,
+  Table,
+  Model,
+  Column,
+  DataType,
+  ForeignKey,
+  BelongsTo,
 } from "sequelize-typescript";
 import { Subject } from "./subject";
 import { Exam } from "./exam";
 
-
-
 interface ExamSubjectAttributes {
-    examId: number;
-    subjectId: number;
-    maxScore: number;
-  }
-  
-  @Table({
-    timestamps: true,
-    tableName: "examSubjects",
-  })
-  export class ExamSubject extends Model<ExamSubjectAttributes> {
-    @ForeignKey(() => Exam)
+  examId: number;
+  classId: number;
+  subjectId: number;
+  maxScore: number;
+}
+
+@Table({
+  timestamps: true,
+  tableName: "subjectsUnderTheExam",
+})
+
+export class SubjectsUnderTheExam extends Model<ExamSubjectAttributes> {
+  @ForeignKey(() => Exam)
     @Column({
       type: DataType.INTEGER,
       allowNull: false,
@@ -49,4 +48,4 @@ interface ExamSubjectAttributes {
   
     @BelongsTo(() => Subject, 'subjectId')
     subject!: Subject;
-  }
+}

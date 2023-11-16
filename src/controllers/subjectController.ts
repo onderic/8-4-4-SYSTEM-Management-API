@@ -1,39 +1,37 @@
 import { Request, Response } from 'express';
 import { Subject } from '../models/subject';
 import { Class } from '../models/class';
-import { UniqueConstraintError } from 'sequelize';
-
+import { Staff } from '../models/staff';
 
 
 export const createSubject = async (req: Request, res: Response) => {
   try {
-    const { name, code, isCompulsory, classId } = req.body
+    const { name, code, isCompulsory, classId } = req.body;
 
-    if (!name || !code || !isCompulsory || !classId) {
+    if (!name || !code || isCompulsory === undefined || classId === undefined) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Check if the specified classId exists
     const selectedClass = await Class.findByPk(classId);
 
     if (!selectedClass) {
       return res.status(404).json({ error: 'Class not found' });
     }
 
-    try {
-      const newSubject = await Subject.create({ name, code, isCompulsory });
+    // Check if the combination of name and code is unique within the class
+    const existingSubject = await Subject.findOne({
+      where: { classId, name, code },
+    });
 
-      res.status(201).json({ message: 'Subject created successfully', newSubject });
-    } catch (error) {
-      if (error instanceof UniqueConstraintError) {
-        return res.status(400).json({ error: 'Subject code must be unique' });
-      }
-
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+    if (existingSubject) {
+      return res.status(400).json({ error: 'Subject name and code must be unique within the class' });
     }
-  }
-  catch (error) {
+
+    // Create the new subject
+    const newSubject = await Subject.create({ name, code, isCompulsory, classId });
+
+    res.status(201).json({ message: 'Subject created successfully', newSubject });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -42,7 +40,22 @@ export const createSubject = async (req: Request, res: Response) => {
 
 export const getAllSubjects = async (req:Request, res:Response): Promise<void> =>{
   try{
-    const subjects = await Subject.findAll();
+    const subjects = await Subject.findAll({
+      attributes: ['id', 'name', 'code','isCompulsory'],
+      include: [
+        {
+          model: Class,
+          attributes: ['name', 'abbreviation'],
+          include: [
+              {
+                model: Staff,
+                attributes: ['id', 'name', 'type'],
+              },
+            ],
+        },
+      ]
+    });
+  
     res.status(200).json(subjects);
   }catch(error){
     console.error('Error fetching subjects:', error);

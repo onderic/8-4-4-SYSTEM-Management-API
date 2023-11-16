@@ -7,7 +7,7 @@ import { Department } from "../src/models/department";
 import { DepartmentHeadHistory } from "../src/models/departmentHistory";
 import { Subject } from "../src/models/subject";
 import { Exam } from "../src/models/exam";
-import { ExamSubject } from "../src/models/examSubjectPivot";
+import { SubjectsUnderTheExam } from "../src/models/subjectsUnderTheExam";
 
 
 const sequelize = new Sequelize({
@@ -17,7 +17,16 @@ const sequelize = new Sequelize({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   logging: false,
-  models: [Staff,Class,Stream, Department, DepartmentHeadHistory,Subject,Exam,ExamSubject],
+  models: [
+    Staff,
+    Class,
+    Stream, 
+    Department, 
+    DepartmentHeadHistory,
+    Subject,
+    Exam,
+    SubjectsUnderTheExam,
+  ],
 });
 
 export default sequelize;

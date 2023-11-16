@@ -3,15 +3,19 @@ import {
     Model,
     Column,
     DataType,
+    ForeignKey,
     BelongsToMany,
-    Unique,
+    BelongsTo
   } from "sequelize-typescript";
   import { Class } from "./class";
+  import { Exam } from "./exam";
+  import { SubjectsUnderTheExam  } from "./subjectsUnderTheExam";
   
   interface SubjectAttributes {
     name: string;
     code: string;
     isCompulsory: boolean;
+    classId:number
   }
   
   @Table({
@@ -25,7 +29,6 @@ import {
     })
     name!: string;
     
-    @Unique
     @Column({
       type: DataType.STRING,
       allowNull: false,
@@ -37,12 +40,22 @@ import {
       allowNull: false,
     })
     isCompulsory!: boolean;
-  
-    // @BelongsToMany(() => Class, {
-    //     through: 'SubjectClass',
-    //     foreignKey: 'subjectId',
-    //     otherKey: 'classId',
-    //   })
-    //   classes!: Class[];
+
+    @ForeignKey(() => Class)
+    @Column({
+      type: DataType.INTEGER,
+      allowNull: false,
+    })
+    classId!: number;
+
+    @BelongsTo(() => Class)
+    class!: Class;
+    
+
+    @BelongsToMany(() => Exam, () => SubjectsUnderTheExam)
+    exams!: Exam[];
+
+    @BelongsToMany(() => Exam, () => SubjectsUnderTheExam)
+    subjectsUnderTheExam!: SubjectsUnderTheExam[];
   }
   

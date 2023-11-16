@@ -10,4 +10,8 @@ router.post(`${baseRoute}`, examController.createExam);
 
 router.get(`${baseRoute}`, examController.getAllExam);
 
+router.put(`${baseRoute}/:id`, examController.updateExam);
+
+router.delete(`${baseRoute}/:id`, examController.deleteExam);
+
 export default router;
