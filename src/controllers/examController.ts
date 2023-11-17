@@ -6,107 +6,99 @@ import { SubjectsToBeDone } from '../models/subjectsToBeDone';
 import { Staff } from '../models/staff';
 
 
-export const createExam = async (req: Request, res: Response) => {
-  try {
-    const { name, startDate, endDate, classIds, subjectsToBeDone } = req.body;
 
-    if (!name || !startDate || !endDate || !classIds || !subjectsToBeDone) {
-      return res.status(400).json({ error: 'All fields are required' });
+export const createExam = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { startDate, endDate, name, classes } = req.body;
+
+    if (!startDate || !endDate || !name || !Array.isArray(classes)) {
+      res.status(400).json({ message: 'Invalid request. Provide startDate, endDate, name, and an array of classes.' });
+      return;
     }
 
-    try {
-      // Check if exams with the same name and subjects already exist for any of the specified classes
-      const existingExams = await Exam.findAll({
-        where: {
-          name,
-          classId: classIds,
-        },
+    // Create the exam
+    const exam = await Exam.create({
+      startDate,
+      endDate,
+      name,
+      classId: classes[0].classID,
+    });
+
+    // Loop through each class in the request
+    for (const classData of classes) {
+      const { classID, subjects } = classData;
+
+      // Check if the class exists
+      const targetClass = await Class.findByPk(classID, {
+        include: [{ model: Subject, attributes: ['id'] }],
       });
 
-      if (existingExams.length > 0) {
-        return res.status(400).json({ error: 'Exam with the same name and subjects already exists for one or more classes' });
+      if (!targetClass) {
+        res.status(404).json({ message: `Class with ID ${classID} not found.` });
+        return;
       }
 
-      const createdExams = [];
+      // Loop through each subject in the class
+      for (const subjectData of subjects) {
+        const { subjectId, maxscore } = subjectData;
 
-      // Loop through each classId and create exams
-      for (const classId of classIds) {
-        // Check if the specified class exists
-        const selectedClass = await Class.findByPk(classId);
-
-        if (!selectedClass) {
-          return res.status(400).json({ error: `Invalid class id: ${classId}` });
-        }
-
-        const exam = await Exam.create({ name, startDate, endDate, classId });
-
-        // Loop through each subject and create ExamSubject entries
-        for (const subjectDetail of subjectsToBeDone) {
-          const { subjectId, maxScore } = subjectDetail;
-
-          const subject = await Subject.findByPk(subjectId);
-
-          if (!subject) {
-            return res.status(400).json({ error: `Subject with id ${subjectId} not found` });
-          }
-
-          // Create subjectsToBeDone entry
-          await SubjectsToBeDone.create({
-            examId: exam.id,
-            classId,
-            subjectId,
-            maxScore,
-          });
-        }
-        createdExams.push(exam);
+        // Create SubjectsToBeDone with examId, subjectId, maxScore, and classId
+        await SubjectsToBeDone.create({
+          examId: exam.id,
+          subjectId,
+          maxScore: maxscore,
+          classId: classID,
+        });
       }
-      return res.status(201).json({ message: 'Exams created successfully', exams: createdExams });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
     }
+
+    // Fetch the exam with associated class and subjects
+    const examWithAssociations = await Exam.findByPk(exam.id, {
+      include: [{ model: Class, include: [{ model: Subject }] }],
+    });
+
+    res.status(201).json({ message: 'Exam with subjects created successfully', exam: examWithAssociations });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Failed to create exam with subjects. Try again.' });
   }
-}; 
+};
+
 
 export const getAllExam = async (req: Request, res: Response) => {
-    try {
-      // Fetch all exams with associated class and subjects
-      const examList = await Exam.findAll({
-        attributes: ['id', 'name', 'startDate','endDate'],
-        include: [
-          {
-            model: Class,
-            attributes: ['id', 'name', 'abbreviation'],
-            include: [
+  try {
+    // Fetch all exams with associated class and subjects
+    const examList = await Exam.findAll({
+      include: [
+        {
+          model: Class,
+          attributes: ['id', 'name', 'abbreviation'],
+          include: [
+            {
+              model: SubjectsToBeDone,
+              attributes: ['maxScore'],
+              include: [
                 {
-                  model: Staff,
-                  attributes: ['id', 'name', 'type'],
+                  model: Subject,
+                  attributes: ['name', 'code','isCompulsory'],
                 },
               ],
-          },
-          {
-            model: SubjectsToBeDone,
-            attributes: ['maxScore'],
-            include: [
-              {
-                model: Subject,
-                attributes: ['name', 'code', 'isCompulsory'],
-              },
-            ],
-          },
-        ],
-        order: [['createdAt', 'DESC']],
-      });
-  
-      res.status(200).json(examList);
-    } catch (error) {
-      console.error("Error fetching exams:", error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  };
+            },
+          ],
+        },
+      ],
+      attributes: ['id', 'name', 'startDate', 'endDate'],
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json(examList);
+  } catch (error) {
+    console.error("Error fetching exams:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
 
   
 export const updateExam = async (req: Request, res: Response) => {
@@ -129,7 +121,7 @@ export const updateExam = async (req: Request, res: Response) => {
       }
   
       // Update exam details
-      await exam.update({ name, startDate, endDate, classId });
+      await exam.update({ name, startDate, endDate });
   
       // Loop through each subject and update/create ExamSubject entries
       if(subjectsToBeDone){

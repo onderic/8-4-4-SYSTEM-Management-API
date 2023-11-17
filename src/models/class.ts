@@ -1,3 +1,4 @@
+// models/class.ts
 import {
   Table,
   Model,
@@ -6,13 +7,17 @@ import {
   BelongsTo,
   ForeignKey,
   Unique,
-  HasMany
+  HasMany,
+  BelongsToMany
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { Stream } from "./stream";
+import { SubjectsToBeDone } from "./subjectsToBeDone";
+import {ClassSubjects } from './classSubjects'
+import { Subject } from "./subject"
+ 
 
 interface ClassAttributes {
-  // id:number;
   name: string;
   abbreviation: string;
   headId: number;
@@ -45,9 +50,15 @@ export class Class extends Model<ClassAttributes> {
   })
   headId!: number;
 
+  @BelongsToMany(() => Subject, () => ClassSubjects)
+  subjects!: Subject[];
+
   @BelongsTo(() => Staff, 'headId')
   head!: Staff;
 
   @HasMany(() => Stream)
   streams!: Stream[];
+
+  @HasMany(() => SubjectsToBeDone) // Add this association for the SubjectsToBeDone model
+  subjectsToBeDones!: SubjectsToBeDone[];
 }

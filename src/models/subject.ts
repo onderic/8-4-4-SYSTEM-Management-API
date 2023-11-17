@@ -1,61 +1,51 @@
+// models/subject.ts
 import {
-    Table,
-    Model,
-    Column,
-    DataType,
-    ForeignKey,
-    BelongsToMany,
-    BelongsTo
-  } from "sequelize-typescript";
-  import { Class } from "./class";
-  import { Exam } from "./exam";
-  import { SubjectsToBeDone  } from "./subjectsToBeDone";
-  
-  interface SubjectAttributes {
-    name: string;
-    code: string;
-    isCompulsory: boolean;
-    classId:number
-  }
-  
-  @Table({
-    timestamps: true,
-    tableName: "subjects",
+  Table,
+  Model,
+  Column,
+  DataType,
+  BelongsToMany,
+} from "sequelize-typescript";
+import { Class } from "./class";
+import { Exam } from "./exam";
+import { SubjectsToBeDone } from "./subjectsToBeDone";
+import { ClassSubjects } from "./classSubjects";
+
+interface SubjectAttributes {
+  name: string;
+  code: string;
+  isCompulsory: boolean;
+}
+
+@Table({
+  timestamps: true,
+  tableName: "subjects",
+})
+export class Subject extends Model<SubjectAttributes> {
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
   })
-  export class Subject extends Model<SubjectAttributes> {
-    @Column({
-      type: DataType.STRING,
-      allowNull: false,
-    })
-    name!: string;
-    
-    @Column({
-      type: DataType.STRING,
-      allowNull: false,
-    })
-    code!: string;
+  name!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  code!: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+  })
+  isCompulsory!: boolean;
   
-    @Column({
-      type: DataType.BOOLEAN,
-      allowNull: false,
-    })
-    isCompulsory!: boolean;
+  @BelongsToMany(() => Class, () => ClassSubjects)
+  classes!: Class[];
 
-    @ForeignKey(() => Class)
-    @Column({
-      type: DataType.INTEGER,
-      allowNull: false,
-    })
-    classId!: number;
+  @BelongsToMany(() => Exam, () => SubjectsToBeDone)
+  exams!: Exam[];
 
-    @BelongsTo(() => Class)
-    class!: Class;
-    
-
-    @BelongsToMany(() => Exam, () => SubjectsToBeDone)
-    exams!: Exam[];
-
-    @BelongsToMany(() => Exam, () => SubjectsToBeDone)
-    subjectsToBeDone!: SubjectsToBeDone[];
-  }
-  
+  @BelongsToMany(() => Exam, () => SubjectsToBeDone)
+  subjectsToBeDone!: SubjectsToBeDone[];
+}

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Class } from "../models/class";
 import { Staff } from "../models/staff";
 import { UniqueConstraintError } from 'sequelize';
+import { Subject } from "../models/subject";
 
 
 export const createClass = async (req: Request, res: Response): Promise<void> => {
@@ -59,6 +60,11 @@ export const getClasses = async (req: Request, res: Response) => {
           as: 'head', 
           attributes: ['id','name', 'number'],
         },
+        {
+          model: Subject,
+          as:"subjects",
+          attributes: ['id','name','code', 'isCompulsory'],
+        }
       ],
     });
 
