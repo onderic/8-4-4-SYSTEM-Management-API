@@ -18,10 +18,10 @@ interface ExamSubjectAttributes {
 
 @Table({
   timestamps: true,
-  tableName: "subjectsUnderTheExam",
+  tableName: "subjectsToBeDone",
 })
 
-export class SubjectsUnderTheExam extends Model<ExamSubjectAttributes> {
+export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   @ForeignKey(() => Exam)
     @Column({
       type: DataType.INTEGER,

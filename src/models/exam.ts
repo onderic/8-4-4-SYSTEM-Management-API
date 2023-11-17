@@ -8,7 +8,7 @@ import {
     HasMany,
 } from "sequelize-typescript";
 import { Class } from "./class";
-import { SubjectsUnderTheExam } from "./subjectsUnderTheExam";
+import { SubjectsToBeDone } from "./subjectsToBeDone";
 
 
 interface ExamAttributes {
@@ -52,6 +52,6 @@ export class  Exam extends Model<ExamAttributes> {
       @BelongsTo(() => Class, 'classId')
       class!: Class;
     
-      @HasMany(() => SubjectsUnderTheExam)
-      subjectsUnderTheExams!: SubjectsUnderTheExam[];
+      @HasMany(() => SubjectsToBeDone)
+      subjectsToBeDones!: SubjectsToBeDone[];
 }

@@ -4,56 +4,49 @@ import { Staff } from "../models/staff";
 import { UniqueConstraintError } from 'sequelize';
 
 
-
-export const createClass = async (req: Request, res: Response) => {
+export const createClass = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, abbreviation, headId } = req.body;
 
     if (!name || !abbreviation || !headId) {
-      return res.status(400).json({ error: 'All fields are required' });
+      res.status(400).json({ message: 'All fields are required' });
+      return;
     }
 
-    try {
-      // Check if a class with the same name already exists
-      await Class.create({ name, abbreviation, headId }); 
-
-      // Check if the staff member with headId exists and is of type TEACHING
-      const head = await Staff.findByPk(headId);
-      if (!head) {
-        return res.status(400).json({ error: "Invalid headId. Staff member not found." });
-      }
-      if (head.dataValues.type !== 'TEACHING') {
-        return res.status(400).json({ error: "The staff member must be of type TEACHING." });
-      }
-
-      const existingClassByHeadId = await Class.findOne({ where: { headId } });
-      if (existingClassByHeadId) {
-        return res.status(400).json({ error: "The staff member is already assigned to another class." });
-      }
-
-      // If all checks pass, create the new class
-      const newClass = await Class.create({
-        name,
-        abbreviation,
-        headId,
-      });
-
-      res.status(201).json({ message: "Class created successfully", newClass });
-    } catch (error) {
-      // Handle UniqueConstraintError
-      if (error instanceof UniqueConstraintError) {
-        return res.status(400).json({ error: "A class with the same name or abbreviation already exists." });
-      }
-
-      console.error(error);
-      res.status(500).json({ error: 'Failed to create class. Try again.' });
+    // Check if the staff member with headId exists and is of type TEACHING
+    const head = await Staff.findByPk(headId);
+    if (!head) {
+      res.status(400).json({ error: "Invalid headId. Staff member not found." });
+      return;
     }
+    if (head.dataValues.type !== 'TEACHING') {
+      res.status(400).json({ error: "The staff member must be of type TEACHING." });
+      return;
+    }
+
+    const existingClassByHeadId = await Class.findOne({ where: { headId } });
+    if (existingClassByHeadId) {
+      res.status(400).json({ error: "The staff member is already assigned to another class." });
+      return;
+    }
+
+    // If all checks pass, create the new class
+    const newClass = await Class.create({
+      name,
+      abbreviation,
+      headId,
+    });
+
+    res.status(201).json({ message: "Class created successfully", newClass });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create class. Try again.' });
+    if (error instanceof UniqueConstraintError) {
+      res.status(400).json({ message: "A class with the same name or abbreviation already exists." });
+    } else {
+      res.status(500).json({ error: 'Failed to create class. Try again.' });
+    }
   }
 };
-
 
 
 export const getClasses = async (req: Request, res: Response) => {
@@ -120,6 +113,7 @@ export const updateClass = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 export const deleteClass = async (req: Request, res: Response) => {
   const { id } = req.params;

@@ -10,9 +10,6 @@ import {
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { Stream } from "./stream";
-import { Subject } from "./subject";
-import { Exam } from "./exam";
-import { SubjectsUnderTheExam } from "./subjectsUnderTheExam";
 
 interface ClassAttributes {
   // id:number;

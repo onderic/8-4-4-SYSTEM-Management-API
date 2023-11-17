@@ -7,7 +7,7 @@ import { Department } from "../src/models/department";
 import { DepartmentHeadHistory } from "../src/models/departmentHistory";
 import { Subject } from "../src/models/subject";
 import { Exam } from "../src/models/exam";
-import { SubjectsUnderTheExam } from "../src/models/subjectsUnderTheExam";
+import { SubjectsToBeDone } from "../src/models/subjectsToBeDone";
 
 
 const sequelize = new Sequelize({
@@ -25,7 +25,7 @@ const sequelize = new Sequelize({
     DepartmentHeadHistory,
     Subject,
     Exam,
-    SubjectsUnderTheExam,
+    SubjectsToBeDone,
   ],
 });
 

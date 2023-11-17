@@ -9,7 +9,7 @@ import {
   } from "sequelize-typescript";
   import { Class } from "./class";
   import { Exam } from "./exam";
-  import { SubjectsUnderTheExam  } from "./subjectsUnderTheExam";
+  import { SubjectsToBeDone  } from "./subjectsToBeDone";
   
   interface SubjectAttributes {
     name: string;
@@ -52,10 +52,10 @@ import {
     class!: Class;
     
 
-    @BelongsToMany(() => Exam, () => SubjectsUnderTheExam)
+    @BelongsToMany(() => Exam, () => SubjectsToBeDone)
     exams!: Exam[];
 
-    @BelongsToMany(() => Exam, () => SubjectsUnderTheExam)
-    subjectsUnderTheExam!: SubjectsUnderTheExam[];
+    @BelongsToMany(() => Exam, () => SubjectsToBeDone)
+    subjectsToBeDone!: SubjectsToBeDone[];
   }
   
