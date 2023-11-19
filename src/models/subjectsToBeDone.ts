@@ -6,6 +6,7 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
+  Index,
 } from "sequelize-typescript";
 import { Subject } from "./subject";
 import { Exam } from "./exam";
@@ -19,8 +20,12 @@ interface ExamSubjectAttributes {
 }
 
 @Table({
-  tableName: "subjectsToBeDone",
+  tableName: "subjectsToBeDone"
 })
+@Index({
+  unique: true,
+  fields: ['examId', 'subjectId', 'classId'],
+} as any)
 export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   @ForeignKey(() => Exam)
   @Column({
@@ -36,10 +41,10 @@ export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   })
   subjectId!: number;
 
-  @ForeignKey(() => Class) // Add foreign key for Class
+  @ForeignKey(() => Class)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
   classId!: number;
 
@@ -52,9 +57,9 @@ export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   @BelongsTo(() => Exam, 'examId')
   exam!: Exam;
 
-  @BelongsTo(() => Class, 'classId') // Add association for Class
-  class!: Class;
-
   @BelongsTo(() => Subject, 'subjectId')
   subject!: Subject;
+
+  @BelongsTo(() => Class, 'classId')
+  class!: Class;
 }

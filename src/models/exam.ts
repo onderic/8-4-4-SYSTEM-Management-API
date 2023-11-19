@@ -4,8 +4,6 @@ import {
   Model,
   Column,
   DataType,
-  ForeignKey,
-  BelongsTo,
   HasMany,
   BelongsToMany,
 } from "sequelize-typescript";
@@ -16,7 +14,6 @@ interface ExamAttributes {
   name: string;
   startDate: Date;
   endDate: Date;
-  classId: number;
 }
 
 @Table({
@@ -42,19 +39,9 @@ export class Exam extends Model<ExamAttributes> {
   })
   endDate!: Date;
 
-  @ForeignKey(() => Class)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  classId!: number;
-
-  // @BelongsTo(() => Class, 'classId')
-  // class!: Class;
-
   @HasMany(() => SubjectsToBeDone)
   subjectsToBeDones!: SubjectsToBeDone[];
 
   @BelongsToMany(() => Class, () => SubjectsToBeDone)
-  classes!: Class[];
+  classId!: Class[];
 }

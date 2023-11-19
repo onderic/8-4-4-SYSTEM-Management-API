@@ -15,7 +15,7 @@ import { Stream } from "./stream";
 import { SubjectsToBeDone } from "./subjectsToBeDone";
 import {ClassSubjects } from './classSubjects'
 import { Subject } from "./subject"
- 
+
 
 interface ClassAttributes {
   name: string;
@@ -59,6 +59,6 @@ export class Class extends Model<ClassAttributes> {
   @HasMany(() => Stream)
   streams!: Stream[];
 
-  @HasMany(() => SubjectsToBeDone) // Add this association for the SubjectsToBeDone model
+  @HasMany(() => SubjectsToBeDone)
   subjectsToBeDones!: SubjectsToBeDone[];
 }

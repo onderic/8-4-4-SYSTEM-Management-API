@@ -3,71 +3,80 @@ import { Exam } from '../models/exam';
 import { Class } from '../models/class';
 import { Subject } from '../models/subject';
 import { SubjectsToBeDone } from '../models/subjectsToBeDone';
-import { Staff } from '../models/staff';
+import { UniqueConstraintError } from 'sequelize';
 
 
-
-export const createExam = async (req: Request, res: Response): Promise<void> => {
+export const createExam = async (req: Request, res: Response) => {
   try {
-    const { startDate, endDate, name, classes } = req.body;
-
-    if (!startDate || !endDate || !name || !Array.isArray(classes)) {
-      res.status(400).json({ message: 'Invalid request. Provide startDate, endDate, name, and an array of classes.' });
-      return;
+    const { startDate, endDate, name, classSubjects } = req.body;
+    if (!startDate || !endDate || !name || !classSubjects) {
+      return res.status(400).json({ error: 'All fields are required!' });
     }
 
-    // Create the exam
+    const existingExamName = await Exam.findOne({
+      where: {
+        name,
+      },
+    });
+
+    if (existingExamName) {
+      return res.status(400).json({ error: 'The exam name already exists!' });
+    }
+
     const exam = await Exam.create({
       startDate,
       endDate,
       name,
-      classId: classes[0].classID,
     });
 
-    // Loop through each class in the request
-    for (const classData of classes) {
-      const { classID, subjects } = classData;
+    //Process each class and its subjects
+    for (const classSubject of classSubjects) {
+      const { classID, subjects } = classSubject;
 
-      // Check if the class exists
-      const targetClass = await Class.findByPk(classID, {
-        include: [{ model: Subject, attributes: ['id'] }],
-      });
+      for (const allocatedSubject of subjects) {
+        const { subjectId, maxScore } = allocatedSubject;
 
-      if (!targetClass) {
-        res.status(404).json({ message: `Class with ID ${classID} not found.` });
-        return;
-      }
+        try {
+          // Check if a record already exists
+          const existingRecord = await SubjectsToBeDone.findOne({
+            where: {
+              examId: exam.id,
+              subjectId,
+              classId: classID,
+            },
+          });
 
-      // Loop through each subject in the class
-      for (const subjectData of subjects) {
-        const { subjectId, maxscore } = subjectData;
+          if (!existingRecord) {
+            await SubjectsToBeDone.create({
+              examId: exam.id,
+              subjectId,
+              maxScore,
+              classId: classID,
+            });
 
-        // Create SubjectsToBeDone with examId, subjectId, maxScore, and classId
-        await SubjectsToBeDone.create({
-          examId: exam.id,
-          subjectId,
-          maxScore: maxscore,
-          classId: classID,
-        });
+            // console.log(`Created record for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+          } else {
+            // console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+          }
+        } catch (error) {
+          if (error instanceof UniqueConstraintError) {
+            console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+          } else {
+            throw error;
+          }
+        }
       }
     }
 
-    // Fetch the exam with associated class and subjects
-    const examWithAssociations = await Exam.findByPk(exam.id, {
-      include: [{ model: Class, include: [{ model: Subject }] }],
-    });
-
-    res.status(201).json({ message: 'Exam with subjects created successfully', exam: examWithAssociations });
+    res.status(201).json({ message: 'Exam created successfully', exam });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create exam with subjects. Try again.' });
+    console.error('Error creating exam:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-
 export const getAllExam = async (req: Request, res: Response) => {
   try {
-    // Fetch all exams with associated class and subjects
     const examList = await Exam.findAll({
       include: [
         {
@@ -80,7 +89,7 @@ export const getAllExam = async (req: Request, res: Response) => {
               include: [
                 {
                   model: Subject,
-                  attributes: ['name', 'code','isCompulsory'],
+                  attributes: ['name', 'code', 'isCompulsory'],
                 },
               ],
             },
@@ -98,9 +107,6 @@ export const getAllExam = async (req: Request, res: Response) => {
   }
 };
 
-
-
-  
 export const updateExam = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -153,9 +159,6 @@ export const updateExam = async (req: Request, res: Response) => {
     }
   };
   
-
-  
-
 export const deleteExam = async (req:Request, res:Response) =>{
   try {
     const { id } = req.params;
