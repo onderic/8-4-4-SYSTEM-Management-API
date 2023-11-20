@@ -1,5 +1,5 @@
 
-const exam = {
+let exam = {
     startDate:'2022-2-13',
     endDate:'2022-2-18',
     name:"openinig exam",

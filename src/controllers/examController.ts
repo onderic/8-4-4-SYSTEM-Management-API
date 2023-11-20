@@ -42,7 +42,7 @@ export const createExam = async (req: Request, res: Response) => {
             where: {
               examId: exam.id,
               subjectId,
-              classId: classID,
+              classId: classID || null,
             },
           });
 
@@ -54,9 +54,9 @@ export const createExam = async (req: Request, res: Response) => {
               classId: classID,
             });
 
-            // console.log(`Created record for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+            console.log(`Created record for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
           } else {
-            // console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+            console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
           }
         } catch (error) {
           if (error instanceof UniqueConstraintError) {
@@ -108,56 +108,75 @@ export const getAllExam = async (req: Request, res: Response) => {
 };
 
 export const updateExam = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { name, startDate, endDate, classId, subjectsToBeDone } = req.body;
-  
-      const exam = await Exam.findByPk(id);
-  
-      if (!exam) {
-        return res.status(404).json({ error: 'Exam not found' });
-      }
+  try {
+    const { id } = req.params;
+    const { name, startDate, endDate, classId, subjectsToBeDone } = req.body;
 
-      if(classId){
-        const selectedClass = await Class.findByPk(classId);
+    const exam = await Exam.findByPk(id);
 
-        if (!selectedClass) {
-          return res.status(400).json({ error: 'Invalid class id' });
-        }
-      }
-  
-      // Update exam details
-      await exam.update({ name, startDate, endDate });
-  
-      // Loop through each subject and update/create ExamSubject entries
-      if(subjectsToBeDone){
-        for (const subjectDetail of subjectsToBeDone) {
-          const { subjectId, maxScore } = subjectDetail;
-    
-          // Check if the subject exists
-          const subject = await Subject.findByPk(subjectId);
-    
-          if (!subject) {
-            return res.status(400).json({ error: `Subject with id ${subjectId} not found` });
-          }
-    
-          await SubjectsToBeDone.update(
-            { maxScore },
-            {
-              where: {
-                examId: exam.id,
-              },
-            }
-          );
-        }
-      }
-      
-      return res.status(200).json({ message: 'Exam updated successfully', exam });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    if (!exam) {
+      return res.status(404).json({ error: 'Exam not found' });
     }
-  };
+
+    if (classId) {
+      const selectedClass = await Class.findByPk(classId);
+
+      if (!selectedClass) {
+        return res.status(400).json({ error: 'Invalid class id' });
+      }
+    }
+
+    // Update exam details
+    await exam.update({ name, startDate, endDate });
+
+    // Loop through each subject and update/create ExamSubject entries
+    if (subjectsToBeDone) {
+      for (const subjectDetail of subjectsToBeDone) {
+        const { subjectId, maxScore } = subjectDetail;
+
+        // Check if the subject exists
+        const subject = await Subject.findByPk(subjectId);
+
+        if (!subject) {
+          return res.status(400).json({ error: `Subject with id ${subjectId} not found` });
+        }
+
+        try {
+          // Check if a record already exists for the combination of examId, subjectId, and classId
+          const existingRecord = await SubjectsToBeDone.findOne({
+            where: {
+              examId: exam.id,
+              subjectId,
+              classId: classId || null, // Handle the case where classId is not provided
+            },
+          });
+
+          if (!existingRecord) {
+            // Create a new record in SubjectsToBeDone
+            await SubjectsToBeDone.create({
+              examId: exam.id,
+              subjectId,
+              maxScore,
+              classId: classId || null, // Handle the case where classId is not provided
+            });
+          } else {
+            // Update the existing record
+            await existingRecord.update({ maxScore });
+          }
+        } catch (error) {
+          // Handle other errors
+          console.error(error);
+          throw error;
+        }
+      }
+    }
+    return res.status(200).json({ message: 'Exam updated successfully', exam });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
   
 export const deleteExam = async (req:Request, res:Response) =>{
   try {

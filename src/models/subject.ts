@@ -48,4 +48,4 @@ export class Subject extends Model<SubjectAttributes> {
 
   @BelongsToMany(() => Exam, () => SubjectsToBeDone)
   subjectsToBeDone!: SubjectsToBeDone[];
-}
+} 
