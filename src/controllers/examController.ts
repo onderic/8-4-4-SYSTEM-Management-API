@@ -54,9 +54,9 @@ export const createExam = async (req: Request, res: Response) => {
               classId: classID,
             });
 
-            console.log(`Created record for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+            // console.log(`Created record for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
           } else {
-            console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+            // console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
           }
         } catch (error) {
           if (error instanceof UniqueConstraintError) {
@@ -75,6 +75,8 @@ export const createExam = async (req: Request, res: Response) => {
   }
 };
 
+
+
 export const getAllExam = async (req: Request, res: Response) => {
   try {
     const examList = await Exam.findAll({
@@ -82,6 +84,10 @@ export const getAllExam = async (req: Request, res: Response) => {
         {
           model: Class,
           attributes: ['id', 'name', 'abbreviation'],
+          through: {
+            model: SubjectsToBeDone,
+            attributes: ['maxScore'],
+          } as any,
           include: [
             {
               model: SubjectsToBeDone,
@@ -107,6 +113,7 @@ export const getAllExam = async (req: Request, res: Response) => {
   }
 };
 
+
 export const updateExam = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -129,7 +136,6 @@ export const updateExam = async (req: Request, res: Response) => {
     // Update exam details
     await exam.update({ name, startDate, endDate });
 
-    // Loop through each subject and update/create ExamSubject entries
     if (subjectsToBeDone) {
       for (const subjectDetail of subjectsToBeDone) {
         const { subjectId, maxScore } = subjectDetail;
@@ -142,29 +148,25 @@ export const updateExam = async (req: Request, res: Response) => {
         }
 
         try {
-          // Check if a record already exists for the combination of examId, subjectId, and classId
           const existingRecord = await SubjectsToBeDone.findOne({
             where: {
               examId: exam.id,
               subjectId,
-              classId: classId || null, // Handle the case where classId is not provided
+              classId: classId || null,
             },
           });
 
           if (!existingRecord) {
-            // Create a new record in SubjectsToBeDone
             await SubjectsToBeDone.create({
               examId: exam.id,
               subjectId,
               maxScore,
-              classId: classId || null, // Handle the case where classId is not provided
+              classId: classId || null,
             });
           } else {
-            // Update the existing record
             await existingRecord.update({ maxScore });
           }
         } catch (error) {
-          // Handle other errors
           console.error(error);
           throw error;
         }
