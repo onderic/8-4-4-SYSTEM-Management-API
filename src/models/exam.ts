@@ -1,4 +1,3 @@
-// models/exam.ts
 import {
   Table,
   Model,
@@ -14,7 +13,10 @@ interface ExamAttributes {
   name: string;
   startDate: Date;
   endDate: Date;
+
+ 
 }
+
 
 @Table({
   timestamps: true,
@@ -43,5 +45,7 @@ export class Exam extends Model<ExamAttributes> {
   subjectsToBeDones!: SubjectsToBeDone[];
 
   @BelongsToMany(() => Class, () => SubjectsToBeDone)
-  classId!: Class[];
+  classes!: Class[];
+
+  
 }

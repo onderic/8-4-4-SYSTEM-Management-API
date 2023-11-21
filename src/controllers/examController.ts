@@ -4,6 +4,7 @@ import { Class } from '../models/class';
 import { Subject } from '../models/subject';
 import { SubjectsToBeDone } from '../models/subjectsToBeDone';
 import { UniqueConstraintError } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 
 
 export const createExam = async (req: Request, res: Response) => {
@@ -75,19 +76,13 @@ export const createExam = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const getAllExam = async (req: Request, res: Response) => {
   try {
-    const examList = await Exam.findAll({
+    const examsWithSubjects = await Exam.findAll({
       include: [
         {
           model: Class,
           attributes: ['id', 'name', 'abbreviation'],
-          through: {
-            model: SubjectsToBeDone,
-            attributes: ['maxScore'],
-          } as any,
           include: [
             {
               model: SubjectsToBeDone,
@@ -106,12 +101,13 @@ export const getAllExam = async (req: Request, res: Response) => {
       order: [['createdAt', 'DESC']],
     });
 
-    res.status(200).json(examList);
+    res.status(200).json(examsWithSubjects);
   } catch (error) {
-    console.error("Error fetching exams:", error);
+    console.error('Error fetching exams with subjects:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 
 export const updateExam = async (req: Request, res: Response) => {
@@ -198,3 +194,50 @@ export const deleteExam = async (req:Request, res:Response) =>{
     res.status(500).json({error:'internal server error'})
   }
 }
+
+export const getEachExam = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid id' });
+    }
+
+    const examData = await Exam.findByPk(id, {
+      include: [
+        {
+          model: Class,
+          attributes: ['id', 'name', 'abbreviation'],
+          through: {
+            model: SubjectsToBeDone,
+            attributes: ['maxScore'],
+          } as any,
+          include: [
+            {
+              model: SubjectsToBeDone,
+              attributes: ['maxScore'],
+              include: [
+                {
+                  model: Subject,
+                  attributes: ['name', 'code', 'isCompulsory'],
+                },
+              ],
+              where: { examId: id },
+            },
+          ],
+          // through: { attributes: [] },
+        },
+      ],
+      attributes: ['id', 'name', 'startDate', 'endDate'],
+    });
+
+    if (!examData) {
+      return res.status(404).json({ error: 'Exam not found' });
+    }
+
+    res.status(200).json(examData);
+  } catch (error) {
+    console.error('Error fetching exam by ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

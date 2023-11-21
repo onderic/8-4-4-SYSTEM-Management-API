@@ -1,4 +1,3 @@
-// models/class.ts
 import {
   Table,
   Model,
@@ -6,16 +5,14 @@ import {
   DataType,
   BelongsTo,
   ForeignKey,
-  Unique,
   HasMany,
-  BelongsToMany
+  BelongsToMany,
 } from "sequelize-typescript";
 import { Staff } from "./staff";
 import { Stream } from "./stream";
 import { SubjectsToBeDone } from "./subjectsToBeDone";
-import {ClassSubjects } from './classSubjects'
-import { Subject } from "./subject"
-
+import { ClassSubjects } from './classSubjects';
+import { Subject } from "./subject";
 
 interface ClassAttributes {
   name: string;
@@ -28,25 +25,25 @@ interface ClassAttributes {
   tableName: "classes",
 })
 export class Class extends Model<ClassAttributes> {
-  @Unique
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   name!: string;
 
-  @Unique
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   abbreviation!: string;
 
   @ForeignKey(() => Staff)
-  @Unique
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    unique: true,
   })
   headId!: number;
 

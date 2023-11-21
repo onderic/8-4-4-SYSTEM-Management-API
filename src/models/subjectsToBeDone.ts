@@ -1,4 +1,3 @@
-// models/subjectsToBeDone.ts
 import {
   Table,
   Model,
@@ -20,12 +19,9 @@ interface ExamSubjectAttributes {
 }
 
 @Table({
-  tableName: "subjectsToBeDone"
+  tableName: "subjectsToBeDone",
 })
-@Index({
-  unique: true,
-  fields: ['examId', 'subjectId', 'classId'],
-} as any)
+
 export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   @ForeignKey(() => Exam)
   @Column({
@@ -44,7 +40,7 @@ export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   @ForeignKey(() => Class)
   @Column({
     type: DataType.INTEGER,
-    allowNull: true,
+    allowNull: false,
   })
   classId!: number;
 
@@ -54,12 +50,12 @@ export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   })
   maxScore!: number;
 
-  @BelongsTo(() => Exam, 'examId')
+  @BelongsTo(() => Exam)
   exam!: Exam;
 
-  @BelongsTo(() => Subject, 'subjectId')
+  @BelongsTo(() => Subject)
   subject!: Subject;
 
-  @BelongsTo(() => Class, 'classId')
+  @BelongsTo(() => Class)
   class!: Class;
 }

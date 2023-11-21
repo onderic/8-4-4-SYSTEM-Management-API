@@ -1,4 +1,3 @@
-// models/subject.ts
 import {
   Table,
   Model,
@@ -25,12 +24,14 @@ export class Subject extends Model<SubjectAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   name!: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   code!: string;
 
@@ -39,7 +40,7 @@ export class Subject extends Model<SubjectAttributes> {
     allowNull: false,
   })
   isCompulsory!: boolean;
-  
+
   @BelongsToMany(() => Class, () => ClassSubjects)
   classes!: Class[];
 
@@ -48,4 +49,5 @@ export class Subject extends Model<SubjectAttributes> {
 
   @BelongsToMany(() => Exam, () => SubjectsToBeDone)
   subjectsToBeDone!: SubjectsToBeDone[];
-} 
+  
+}

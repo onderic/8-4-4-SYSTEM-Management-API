@@ -12,6 +12,8 @@ router.get(`${baseRoute}`, examController.getAllExam);
 
 router.put(`${baseRoute}/:id`, examController.updateExam);
 
+router.get(`${baseRoute}/getAnExam/:id`, examController.getEachExam);
+
 router.delete(`${baseRoute}/:id`, examController.deleteExam);
 
 export default router;
