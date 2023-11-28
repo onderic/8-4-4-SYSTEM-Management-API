@@ -53,6 +53,7 @@ export const getAllSubjects = async (req:Request, res:Response): Promise<void> =
                 attributes: ['id', 'name', 'type'],
               },
             ],
+            through: { attributes: [] },
         },
       ]
     });
