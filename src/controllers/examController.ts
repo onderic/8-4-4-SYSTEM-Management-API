@@ -85,7 +85,7 @@ export const getAllExam = async (req: Request, res: Response) => {
     });
 
     if (allExams.length === 0) {
-      return res.status(404).json({ error: 'No Records found!' });
+      return res.status(404).json({ error: 'No Records found!.' });
     }
 
     const examsWithDetails = await Promise.all(
