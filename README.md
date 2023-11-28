@@ -45,3 +45,10 @@ Make sure you have the following installed:
     npm start
 
 
+### Explore the following endpoints:
+
+   /api/v1/staff: Manage staff members.
+   /api/v1/classes: Manage classes.
+   /api/v1/streams: Manage streams.
+   /api/v1/departments: Manage departments.
+   /api/v1/exam: Manage Exams.
