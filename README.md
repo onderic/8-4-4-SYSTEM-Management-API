@@ -28,7 +28,7 @@ Make sure you have the following installed:
 
 
 ### Install dependencies.
-    cd my-express-ts-app
+    cd 8-4-4-api
     npm install
 
 # Set up environment variables.
