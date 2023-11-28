@@ -23,6 +23,7 @@ interface ExamAttributes {
   tableName: "exams",
 })
 export class Exam extends Model<ExamAttributes> {
+  [x: string]: any;
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -46,6 +47,5 @@ export class Exam extends Model<ExamAttributes> {
 
   @BelongsToMany(() => Class, () => SubjectsToBeDone)
   classes!: Class[];
-
   
 }

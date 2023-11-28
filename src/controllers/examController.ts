@@ -76,16 +76,24 @@ export const createExam = async (req: Request, res: Response) => {
   }
 };
 
+
 export const getAllExam = async (req: Request, res: Response) => {
   try {
-    const examsWithSubjects = await Exam.findAll({
-      include: [
-        {
-          model: Class,
-          attributes: ['id', 'name', 'abbreviation'],
+    const allExams = await Exam.findAll({
+      attributes: ['id', 'name', 'startDate', 'endDate'],
+    });
+
+    if (allExams.length === 0) {
+      return res.status(404).json({ error: 'Exams not found' });
+    }
+
+    const examsWithDetails = await Promise.all(
+      allExams.map(async (exam) => {
+        const classesWithSubjects = await Class.findAll({
           include: [
             {
               model: SubjectsToBeDone,
+              where: { examId: exam.id },
               attributes: ['maxScore'],
               include: [
                 {
@@ -95,20 +103,22 @@ export const getAllExam = async (req: Request, res: Response) => {
               ],
             },
           ],
-        },
-      ],
-      attributes: ['id', 'name', 'startDate', 'endDate'],
-      order: [['createdAt', 'DESC']],
-    });
+          attributes: ['id', 'name', 'abbreviation'],
+        });
 
-    res.status(200).json(examsWithSubjects);
+        return {
+          ...exam.toJSON(),
+          classes: classesWithSubjects,
+        };
+      })
+    );
+
+    res.status(200).json(examsWithDetails);
   } catch (error) {
-    console.error('Error fetching exams with subjects:', error);
+    console.error('Error fetching all exams:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
-
 
 export const updateExam = async (req: Request, res: Response) => {
   try {
@@ -208,10 +218,6 @@ export const getEachExam = async (req: Request, res: Response) => {
         {
           model: Class,
           attributes: ['id', 'name', 'abbreviation'],
-          through: {
-            model: SubjectsToBeDone,
-            attributes: ['maxScore'],
-          } as any,
           include: [
             {
               model: SubjectsToBeDone,
@@ -225,7 +231,7 @@ export const getEachExam = async (req: Request, res: Response) => {
               where: { examId: id },
             },
           ],
-          // through: { attributes: [] },
+          through: { attributes: [] },
         },
       ],
       attributes: ['id', 'name', 'startDate', 'endDate'],
