@@ -4,7 +4,6 @@ import { Class } from '../models/class';
 import { Subject } from '../models/subject';
 import { SubjectsToBeDone } from '../models/subjectsToBeDone';
 import { UniqueConstraintError } from 'sequelize';
-import { Sequelize } from 'sequelize-typescript';
 
 
 export const createExam = async (req: Request, res: Response) => {
@@ -38,7 +37,6 @@ export const createExam = async (req: Request, res: Response) => {
         const { subjectId, maxScore } = allocatedSubject;
 
         try {
-          // Check if a record already exists
           const existingRecord = await SubjectsToBeDone.findOne({
             where: {
               examId: exam.id,
@@ -54,21 +52,23 @@ export const createExam = async (req: Request, res: Response) => {
               maxScore,
               classId: classID,
             });
-
-            // console.log(`Created record for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
           } else {
-            // console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+            return res.status(409).json({
+              error: `Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`,
+            });
           }
         } catch (error) {
           if (error instanceof UniqueConstraintError) {
-            console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+            // console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
+            return res.status(409).json({
+              error: `Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`,
+            });
           } else {
             throw error;
           }
         }
       }
     }
-
     res.status(201).json({ message: 'Exam created successfully', exam });
   } catch (error) {
     console.error('Error creating exam:', error);
@@ -120,6 +120,7 @@ export const getAllExam = async (req: Request, res: Response) => {
   }
 };
 
+
 export const updateExam = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -131,22 +132,12 @@ export const updateExam = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Exam not found' });
     }
 
-    if (classId) {
-      const selectedClass = await Class.findByPk(classId);
-
-      if (!selectedClass) {
-        return res.status(400).json({ error: 'Invalid class id' });
-      }
-    }
-
-    // Update exam details
     await exam.update({ name, startDate, endDate });
 
     if (subjectsToBeDone) {
       for (const subjectDetail of subjectsToBeDone) {
         const { subjectId, maxScore } = subjectDetail;
 
-        // Check if the subject exists
         const subject = await Subject.findByPk(subjectId);
 
         if (!subject) {
@@ -170,20 +161,24 @@ export const updateExam = async (req: Request, res: Response) => {
               classId: classId || null,
             });
           } else {
+            // Update the existing record
             await existingRecord.update({ maxScore });
           }
         } catch (error) {
           console.error(error);
-          throw error;
+          return res.status(500).json({ error: 'Internal Server Error' });
         }
       }
     }
+
     return res.status(200).json({ message: 'Exam updated successfully', exam });
   } catch (error) {
     console.error(error);
+
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
   
 export const deleteExam = async (req:Request, res:Response) =>{
