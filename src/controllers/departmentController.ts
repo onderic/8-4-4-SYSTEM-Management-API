@@ -89,12 +89,13 @@ export const updateDepartments = async (req: Request, res: Response) => {
     if (!department) {
       return res.status(404).json({ error: "Department not found." });
     }
-    // Check if a department with the same name already exists
-    const existingDepartment = await Department.findOne({ where: { name } });
-
-    if (existingDepartment) {
-      return res.status(400).json({ error: "A department with the same name already exists." });
+    if(name){
+      const existingDepartment = await Department.findOne({ where: { name } });
+      if (existingDepartment) {
+        return res.status(400).json({ error: "A department with the same name already exists." });
+      }
     }
+    
     // Check if headId is provided before querying for an existing department
     if (headId) {
       const existingDepartment = await Department.findOne({ where: { headId } });
