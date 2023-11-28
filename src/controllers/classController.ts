@@ -64,8 +64,11 @@ export const getClasses = async (req: Request, res: Response) => {
           model: Subject,
           as:"subjects",
           attributes: ['id','name','code', 'isCompulsory'],
+          through: { attributes: [] },
         }
+        
       ],
+      
     });
 
     res.status(200).json(classes);
