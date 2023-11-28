@@ -81,10 +81,11 @@ export const getAllExam = async (req: Request, res: Response) => {
   try {
     const allExams = await Exam.findAll({
       attributes: ['id', 'name', 'startDate', 'endDate'],
+      order: [['createdAt', 'DESC']],
     });
 
     if (allExams.length === 0) {
-      return res.status(404).json({ error: 'Exams not found' });
+      return res.status(404).json({ error: 'No Records found!' });
     }
 
     const examsWithDetails = await Promise.all(
