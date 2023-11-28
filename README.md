@@ -1,6 +1,6 @@
 # 8-4-4 SYSTEM Management API
 
-Welcome to the 8-4-4 Management API documentation. This API provides endpoints to manage and retrieve information about staff members, classes, streams, and departments in an educational institution.
+Welcome to the 8-4-4 Management API documentation. This API provides endpoints to manage and retrieve information about staff members, classes, streams, departments and exams in an educational institution.
 
 ## Table of Contents
 - [Getting Started](#getting-started)
