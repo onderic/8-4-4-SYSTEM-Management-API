@@ -4,6 +4,7 @@ import { Class } from "../models/class";
 import { Stream } from "../models/stream";
 import { Department } from "../models/department";  
 import { DepartmentHeadHistory } from "../models/departmentHistory"; 
+import { Subject } from "../models/subject";
 
 
 export const getAllStaffMembers = async (req: Request, res: Response) => {
@@ -62,6 +63,12 @@ export const classesInfomation = async (req: Request, res: Response) => {
                 },
               ],
             },
+            {
+              model: Subject,
+              as:"subjects",
+              attributes: ['id','name','code', 'isCompulsory'],
+              through: { attributes: [] },
+            }
           ],
         });
     
