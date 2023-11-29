@@ -70,11 +70,7 @@ export const updateSubject = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, code, isCompulsory } = req.body;
-
-    if (!name || !code || !isCompulsory) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
-
+    
     const subject = await Subject.findByPk(id);
 
     if (!subject) {

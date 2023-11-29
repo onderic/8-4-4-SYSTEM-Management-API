@@ -194,7 +194,7 @@ export const deleteExam = async (req:Request, res:Response) =>{
 
     await exam.destroy();
 
-    res.status(200).json({ message: 'Subject deleted successfully' });
+    res.status(200).json({ message: 'Exam deleted successfully' });
   }catch (error){
     console.log(error)
     res.status(500).json({error:'internal server error'})
