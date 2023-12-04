@@ -59,7 +59,7 @@ export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
 }
 
 // NOTE: If you encounter issues with  unique constraint, when trying to create a new exam
-// you may need to create the "subjectsToBeDone" table manually with the following SQL in postgress:
+// You may need to create the "subjectsToBeDone" table manually with the following SQL in postgress:
 
 // CREATE TABLE "subjectsToBeDone" (
 //   "examId" INTEGER,

@@ -12,7 +12,7 @@ import { Staff } from "./staff";
 import { Stream } from "./stream";
 import { SubjectsToBeDone } from "./subjectsToBeDone";
 import { ClassSubjects } from './classSubjects';
-import { Subject } from "./subject";
+import { Subject } from "./subject"
 
 interface ClassAttributes {
   name: string;
@@ -46,7 +46,7 @@ export class Class extends Model<ClassAttributes> {
     unique: true,
   })
   headId!: number;
-
+  
   @BelongsToMany(() => Subject, () => ClassSubjects)
   subjects!: Subject[];
   
