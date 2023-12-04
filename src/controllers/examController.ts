@@ -22,6 +22,7 @@ export const createExam = async (req: Request, res: Response) => {
     for (const classSubject of classSubjects) {
       const { classID, subjects } = classSubject;
 
+      // Check if the subjects belong to the specified classID
       const classInfo = await Class.findByPk(classID, {
         include: [
           {
@@ -63,6 +64,7 @@ export const createExam = async (req: Request, res: Response) => {
         name,
       });
 
+      // Create SubjectsToBeDone records
       for (const classSubject of classSubjects) {
         const { classID, subjects } = classSubject;
 
