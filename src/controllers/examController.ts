@@ -6,75 +6,114 @@ import { SubjectsToBeDone } from '../models/subjectsToBeDone';
 import { UniqueConstraintError } from 'sequelize';
 
 
+
 export const createExam = async (req: Request, res: Response) => {
   try {
     const { startDate, endDate, name, classSubjects } = req.body;
+
     if (!startDate || !endDate || !name || !classSubjects) {
       return res.status(400).json({ error: 'All fields are required!' });
     }
 
-    const existingExamName = await Exam.findOne({
-      where: {
-        name,
-      },
-    });
+    // Flag to track if all classes are valid
+    let isValid = true; 
 
-    if (existingExamName) {
-      return res.status(400).json({ error: 'The exam name already exists!' });
-    }
-
-    const exam = await Exam.create({
-      startDate,
-      endDate,
-      name,
-    });
-
-    //Process each class and its subjects
+    // Process each class and its subjects
     for (const classSubject of classSubjects) {
       const { classID, subjects } = classSubject;
 
-      for (const allocatedSubject of subjects) {
-        const { subjectId, maxScore } = allocatedSubject;
+      const classInfo = await Class.findByPk(classID, {
+        include: [
+          {
+            model: Subject,
+            attributes: ['id'],
+            through: { attributes: [] },
+            as: 'subjects',
+          },
+        ],
+      });
 
-        try {
-          const existingRecord = await SubjectsToBeDone.findOne({
-            where: {
-              examId: exam.id,
-              subjectId,
-              classId: classID || null,
-            },
-          });
+      const classSubjects = classInfo?.get('subjects') || [];
 
-          if (!existingRecord) {
-            await SubjectsToBeDone.create({
-              examId: exam.id,
-              subjectId,
-              maxScore,
-              classId: classID,
+      // Extract validSubjectIds
+      const validSubjectIds = classSubjects.map((subject: any) => subject.id);
+
+      // Check if all subjects belong to the specified class
+      if (!subjects.every((subject: any) => validSubjectIds.includes(subject.subjectId))) {
+        isValid = false;
+        break;
+      }
+    }
+
+    // Create the exam only if all classes are valid
+    if (isValid) {
+      const existingExamName = await Exam.findOne({
+        where: {
+          name,
+        },
+      });
+
+      if (existingExamName) {
+        return res.status(400).json({ error: 'The exam name already exists!' });
+      }
+
+      const exam = await Exam.create({
+        startDate,
+        endDate,
+        name,
+      });
+
+      for (const classSubject of classSubjects) {
+        const { classID, subjects } = classSubject;
+
+        for (const allocatedSubject of subjects) {
+          const { subjectId, maxScore } = allocatedSubject;
+
+          try {
+            const existingRecord = await SubjectsToBeDone.findOne({
+              where: {
+                examId: exam.id,
+                subjectId,
+                classId: classID || null,
+              },
             });
-          } else {
-            return res.status(409).json({
-              error: `Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`,
-            });
-          }
-        } catch (error) {
-          if (error instanceof UniqueConstraintError) {
-            // console.log(`Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`);
-            return res.status(409).json({
-              error: `Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`,
-            });
-          } else {
-            throw error;
+
+            if (!existingRecord) {
+              await SubjectsToBeDone.create({
+                examId: exam.id,
+                subjectId,
+                maxScore,
+                classId: classID,
+              });
+            } else {
+              return res.status(409).json({
+                error: `Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`,
+              });
+            }
+          } catch (error) {
+            if (error instanceof UniqueConstraintError) {
+              return res.status(409).json({
+                error: `Record already exists for examId: ${exam.id}, subjectId: ${subjectId}, classId: ${classID}`,
+              });
+            } else {
+              throw error;
+            }
           }
         }
       }
+
+      res.status(201).json({ message: 'Exam created successfully' });
+    } else {
+      return res.status(400).json({ error: 'Invalid subjects provided for one or more classes!' });
     }
-    res.status(201).json({ message: 'Exam created successfully', exam });
   } catch (error) {
     console.error('Error creating exam:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+
 
 
 export const getAllExam = async (req: Request, res: Response) => {
@@ -194,7 +233,7 @@ export const deleteExam = async (req:Request, res:Response) =>{
 
     await exam.destroy();
 
-    res.status(200).json({ message: 'Exam deleted successfully' });
+    res.status(200).json({ message: 'Exams deleted successfully' });
   }catch (error){
     console.log(error)
     res.status(500).json({error:'internal server error'})

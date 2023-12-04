@@ -58,8 +58,8 @@ export class SubjectsToBeDone extends Model<ExamSubjectAttributes> {
   class!: Class;
 }
 
-// NOTE: If you encounter issues with TypeScript compilation for the unique constraint,
-// you may need to create the "subjectsToBeDone" table manually with the following SQL:
+// NOTE: If you encounter issues with  unique constraint, when trying to create a new exam
+// you may need to create the "subjectsToBeDone" table manually with the following SQL in postgress:
 
 // CREATE TABLE "subjectsToBeDone" (
 //   "examId" INTEGER,

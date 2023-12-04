@@ -49,7 +49,7 @@ export class Class extends Model<ClassAttributes> {
 
   @BelongsToMany(() => Subject, () => ClassSubjects)
   subjects!: Subject[];
-
+  
   @BelongsTo(() => Staff, 'headId')
   head!: Staff;
 
