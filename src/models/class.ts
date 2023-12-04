@@ -12,7 +12,7 @@ import { Staff } from "./staff";
 import { Stream } from "./stream";
 import { SubjectsToBeDone } from "./subjectsToBeDone";
 import { ClassSubjects } from './classSubjects';
-import { Subject } from "./subject"
+import { Subject } from "./subject";
 
 interface ClassAttributes {
   name: string;
