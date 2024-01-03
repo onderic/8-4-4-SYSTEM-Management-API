@@ -1,16 +1,19 @@
 import { Request, Response } from 'express';
 import { Staff } from '../models/staff';
+import bcrypt from 'bcrypt';
 
 export const createStaff = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, number,type} = req.body;
+    const { name, number,type, email} = req.body;
 
-    if ( !name || !number || !type ){
+    if ( !name || !number || !type || !email ){
       res.status(400).json({ message: 'All fields are required' });
       return;
     }
+    // Hash the number field using bcrypt
+    const hashNumber = await bcrypt.hash(number,10)
     // Create a new staff record
-    const staff = await Staff.create({ name, number, type });
+    const staff = await Staff.create({ name, number:hashNumber, type, email });
 
     res.status(201).json({ message: 'Staff created successfully', staff });
   } catch (error) {
@@ -34,7 +37,7 @@ export const getAllStaffs = async (req:Request, res:Response): Promise<void> =>{
 export const updateStaff = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, number, type } = req.body;
+    const { name, number, type,  email } = req.body;
 
     // Check if the staff member exists
     const existingStaff = await Staff.findByPk(id);
@@ -44,9 +47,17 @@ export const updateStaff = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    // Hash the number field using bcrypt if it exists in the payload
+    let hashedNumber;
+    if (number) {
+      hashedNumber = await bcrypt.hash(number, 10);
+    }
+    
+     // Create a new staff record
     const updatedStaff = await existingStaff.update({
       name,
-      number,
+      number: hashedNumber || existingStaff.number,
+      email,
       type
     });
 

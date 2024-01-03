@@ -9,6 +9,7 @@ import departmentRoutes from './routes/departmentRoutes';
 import dataFetching from './routes/dataFetching';
 import subjectRouter from './routes/subjectRouter';
 import examRouter from './routes/examRouter';
+import userAuthRoutes from './routes/userAuthRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,7 @@ app.use('/api/v1', departmentRoutes);
 app.use('/api/v1', dataFetching);
 app.use('/api/v1', subjectRouter);
 app.use('/api/v1', examRouter);
+app.use('/api/v1', userAuthRoutes);
 
 // Database connection and server start
 const startServer = async (): Promise<void> => {

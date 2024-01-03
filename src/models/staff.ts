@@ -6,6 +6,7 @@ import { Department } from "./department";
 interface StaffAttributes {
   name: string;
   number: string;
+  email: string;
   type: "TEACHING" | "NON-TEACHING";
 }
 
@@ -19,6 +20,13 @@ export class Staff extends Model<StaffAttributes> {
     allowNull: false,
   })
   name!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: false,
+  })
+  email!: string;
 
   @Column({
     type: DataType.STRING,
