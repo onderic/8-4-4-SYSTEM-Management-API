@@ -1,6 +1,7 @@
 // routes/staffRoutes.ts
 import { Router } from 'express';
 import * as staffController from '../controllers/staffController';
+import {auth} from '../middlewares/authentication';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ router.post(baseRoute, staffController.createStaff);
 router.get(`${baseRoute}/all`, staffController.getAllStaffs);
 
 // PUT /staff/:id - Update a staff
-router.put(`${baseRoute}/:id`, staffController.updateStaff);
+router.put(`${baseRoute}/:id`,auth, staffController.updateStaff);
 
 // DELETE /staff/:id - Delete a staff
 router.delete(`${baseRoute}/:id`, staffController.deleteStaff);
