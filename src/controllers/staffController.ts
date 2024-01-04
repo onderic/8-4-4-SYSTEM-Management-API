@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Staff } from '../models/staff';
 import bcrypt from 'bcrypt';
+import { CustomRequest, auth } from '../middlewares/authentication';
 
 export const createStaff = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -13,7 +14,7 @@ export const createStaff = async (req: Request, res: Response): Promise<void> =>
     // Hash the number field using bcrypt
     const hashNumber = await bcrypt.hash(number,10)
     // Create a new staff record
-    const staff = await Staff.create({ name, number:hashNumber, type, email });
+    const staff = await Staff.create({ name, number:hashNumber, type, email } as any);
 
     res.status(201).json({ message: 'Staff created successfully', staff });
   } catch (error) {
@@ -34,16 +35,27 @@ export const getAllStaffs = async (req:Request, res:Response): Promise<void> =>{
 }
 
 
-export const updateStaff = async (req: Request, res: Response): Promise<void> => {
+export const updateStaff = async (req: CustomRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, number, type,  email } = req.body;
+    
 
     // Check if the staff member exists
     const existingStaff = await Staff.findByPk(id);
 
     if (!existingStaff) {
       res.status(404).json({ message: 'Staff not found' });
+      return;
+    }
+    // const isAdmin = req.token?.role === 'admin';
+
+    const token = req.token as { staffId?: number };
+
+    const isOwner = token && token.staffId === existingStaff.id;
+
+    if (!isOwner) {
+      res.status(403).json({ message: 'Unauthorized', error: 'You do not have permission to update this record' });
       return;
     }
 

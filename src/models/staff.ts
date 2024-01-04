@@ -8,6 +8,7 @@ interface StaffAttributes {
   number: string;
   email: string;
   type: "TEACHING" | "NON-TEACHING";
+  role: "ADMIN" | "STAFF"; 
 }
 
 @Table({
@@ -39,6 +40,14 @@ export class Staff extends Model<StaffAttributes> {
     allowNull: false,
   })
   type!: "TEACHING" | "NON-TEACHING";
+
+
+  @Column({
+    type: DataType.ENUM("ADMIN", "STAFF"),
+    allowNull: false,
+    defaultValue: 'STAFF',
+  })
+  role!: "ADMIN" | "STAFF";
 
   @HasOne(() => Class)
   staffClass!: Class;

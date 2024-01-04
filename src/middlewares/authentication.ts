@@ -5,10 +5,10 @@ import { Request, Response, NextFunction } from 'express';
 export const SECRET_KEY: Secret = process.env.JWT_SECRET || 'a0995f5b68e324680cb121f73966531a8cd6794eb35b2b38884d5694ec97cd70';
 
 export interface CustomRequest extends Request {
-  token: string | JwtPayload;
+  token?: string | JwtPayload;
 }
 
-export const auth = async (req: Request, res: Response, next: NextFunction) => {
+export const auth = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
