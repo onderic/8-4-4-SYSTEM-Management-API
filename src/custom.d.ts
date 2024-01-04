@@ -1,6 +1,6 @@
 // custom.d.ts
 
-import { Staff } from '../models/staff'; // Update the import path based on your project structure
+import { Staff } from '../models/staff';
 import { Request } from 'express';
 
 declare module 'express' {

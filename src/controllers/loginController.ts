@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { Staff } from '../models/staff';
 require('dotenv').config();
 
+
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, number } = req.body;
@@ -20,12 +21,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    // If no staff member found or the hashed number doesn't match, authentication fails
     if (!staffMember) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
-
 
     // Hash the provided plain text number and compare with the hashed number in the database
     const isNumberValid = await bcrypt.compare(String(number), staffMember.dataValues.number);
