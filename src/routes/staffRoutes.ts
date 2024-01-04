@@ -12,7 +12,7 @@ const baseRoute = '/staff';
 router.post(baseRoute, staffController.createStaff);
 
 // GET /staff/all - Get all staff
-router.get(`${baseRoute}/all`, staffController.getAllStaffs);
+router.get(`${baseRoute}/all`,auth, staffController.getAllStaffs);
 
 // PUT /staff/:id - Update a staff
 router.put(`${baseRoute}/:id`,auth, staffController.updateStaff);

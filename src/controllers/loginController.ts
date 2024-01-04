@@ -37,10 +37,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // If authentication is successful, generate a JWT token
     const token = jwt.sign(
-      { staffId: staffMember.id, email: staffMember.dataValues.email },
+      {  staffId: staffMember.id,
+         email: staffMember.dataValues.email,
+         role: staffMember.dataValues.role 
+        },
       process.env.JWT_SECRET || 'a0995f5b68e324680cb121f73966531a8cd6794eb35b2b38884d5694ec97cd70',
       {
-        expiresIn: '1d',
+        expiresIn: '1m',
       }
     );
 
@@ -49,6 +52,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       success: true,
       message: 'Login success',
       staffId: staffMember.id, 
+      role: staffMember.dataValues.role, 
       email: staffMember.dataValues.email,
       name: staffMember.dataValues.name,
       token: token,

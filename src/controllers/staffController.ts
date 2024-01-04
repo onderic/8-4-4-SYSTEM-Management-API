@@ -3,6 +3,7 @@ import { Staff } from '../models/staff';
 import bcrypt from 'bcrypt';
 import { CustomRequest, auth } from '../middlewares/authentication';
 
+
 export const createStaff = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, number,type, email} = req.body;
@@ -24,15 +25,26 @@ export const createStaff = async (req: Request, res: Response): Promise<void> =>
 };
 
 
-export const getAllStaffs = async (req:Request, res:Response): Promise<void> =>{
-    try{
-      const Staffs = await Staff.findAll();
-      res.status(200).json(Staffs);
-    }catch(error){
-      console.error('Error fetching Staffs:', error);
-      res.status(500).json({ error: 'Internal server error' });
+export const getAllStaffs = async (req: CustomRequest, res: Response): Promise<void> => {
+  try {
+    // Ensure that only users with the 'ADMIN' role can access the route
+    const userRole = (req.token as { role?: string })?.role;
+    const isAdmin = userRole === 'ADMIN';
+    if (!isAdmin) {
+      res.status(403).json({
+        error: 'Authorization failed',
+        message: 'You do not have the required role to access this resource',
+      });
+      return;
     }
-}
+
+    const Staffs = await Staff.findAll();
+    res.status(200).json(Staffs);
+  } catch (error) {
+    console.error('Error fetching Staffs:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 
 export const updateStaff = async (req: CustomRequest, res: Response): Promise<void> => {
