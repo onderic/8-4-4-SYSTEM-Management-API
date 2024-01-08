@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { Staff } from '../models/staff';
 import bcrypt from 'bcrypt';
-import { CustomRequest, auth } from '../middlewares/authentication';
+import CustomRequest from '../types/custom'; 
+
 
 
 export const createStaff = async (req: Request, res: Response): Promise<void> => {
@@ -26,25 +27,46 @@ export const createStaff = async (req: Request, res: Response): Promise<void> =>
 
 
 export const getAllStaffs = async (req: CustomRequest, res: Response): Promise<void> => {
-  try {
-    // Ensure that only users with the 'ADMIN' role can access the route
-    const userRole = (req.token as { role?: string })?.role;
-    const isAdmin = userRole === 'ADMIN';
-    if (!isAdmin) {
-      res.status(403).json({
-        error: 'Authorization failed',
-        message: 'You do not have the required role to access this resource',
-      });
-      return;
-    }
+      try {
 
-    const Staffs = await Staff.findAll();
-    res.status(200).json(Staffs);
+      if (req.role !== 'ADMIN') {
+        res.status(403).json({ message: 'Forbidden: You do not have permission to access this resource' });
+        return;
+      }
+    const staffs = await Staff.findAll();
+    res.status(200).json(staffs);
   } catch (error) {
-    console.error('Error fetching Staffs:', error);
+    console.error('Error fetching staffs:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getUserProfile = async (req: CustomRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.staffId;
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized', error: 'Invalid token' });
+      return;
+    }
+
+    // Fetch the user profile from the database
+    const userProfile = await Staff.findByPk(userId, {
+      attributes: ['id', 'name', 'number', 'email', 'role', 'refreshToken'],
+    });
+
+    if (!userProfile) {
+      res.status(404).json({ message: 'User profile not found' });
+      return;
+    }
+
+    res.status(200).json(userProfile);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 
 
 export const updateStaff = async (req: CustomRequest, res: Response): Promise<void> => {
@@ -60,16 +82,13 @@ export const updateStaff = async (req: CustomRequest, res: Response): Promise<vo
       res.status(404).json({ message: 'Staff not found' });
       return;
     }
-    // const isAdmin = req.token?.role === 'admin';
-
-    const token = req.token as { staffId?: number };
-
-    const isOwner = token && token.staffId === existingStaff.id;
-
-    if (!isOwner) {
-      res.status(403).json({ message: 'Unauthorized', error: 'You do not have permission to update this record' });
+   
+     // Check if the current user is the owner of the staff record or has admin role
+     if (req.staffId !== existingStaff.id && req.role !== 'ADMIN') {
+      res.status(403).json({ message: 'Forbidden: You do not have permission to update this resource' });
       return;
     }
+
 
     // Hash the number field using bcrypt if it exists in the payload
     let hashedNumber;

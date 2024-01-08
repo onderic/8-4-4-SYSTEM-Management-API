@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import express, { Request, Response } from "express";
 import bodyParser from 'body-parser';
+import corsMiddleware from './middlewares/corsMiddleware'; 
 import sequelize from "../config/database";
 import staffRoutes from './routes/staffRoutes';
 import classRoutes from './routes/classRoutes';
@@ -9,13 +10,21 @@ import departmentRoutes from './routes/departmentRoutes';
 import dataFetching from './routes/dataFetching';
 import subjectRouter from './routes/subjectRouter';
 import examRouter from './routes/examRouter';
-import userAuthRoutes from './routes/userAuthRoutes';
+import userAuthRoutes from './routes/auth/userAuthRoutes';
+import cookieParser from 'cookie-parser';
+
+import cors from 'cors';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cookieParser());
 
 app.use(bodyParser.json());
+
+// Use the CORS middleware
+app.use(cors());
 
 // Routes
 app.use('/api/v1', staffRoutes);

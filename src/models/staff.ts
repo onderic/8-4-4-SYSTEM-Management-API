@@ -9,6 +9,7 @@ interface StaffAttributes {
   email: string;
   type: "TEACHING" | "NON-TEACHING";
   role: "ADMIN" | "STAFF"; 
+  refreshToken: string;
 }
 
 @Table({
@@ -49,6 +50,14 @@ export class Staff extends Model<StaffAttributes> {
   })
   role!: "ADMIN" | "STAFF";
 
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: true,
+    defaultValue: [],
+  })
+  refreshToken!: string[];
+  
+    
   @HasOne(() => Class)
   staffClass!: Class;
 
