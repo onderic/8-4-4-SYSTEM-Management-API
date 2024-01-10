@@ -15,7 +15,7 @@ router.post(baseRoute, staffController.createStaff);
 router.get(`${baseRoute}/all`,verifyToken, staffController.getAllStaffs);
 
 
-router.get(`${baseRoute}/profile/:id`,verifyToken, staffController.getUserProfile);
+router.get(`${baseRoute}/profile`,verifyToken, staffController.getUserProfile);
 
 // PUT /staff/:id - Update a staff
 router.put(`${baseRoute}/:id`,verifyToken, staffController.updateStaff);

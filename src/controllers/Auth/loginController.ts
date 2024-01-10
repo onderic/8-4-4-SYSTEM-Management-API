@@ -23,7 +23,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!staffMember) {
-      res.status(401).json({ message: 'Authentication failed' });
+      res.status(401).json({ message: 'Login failed' });
       return;
     }
 
@@ -31,7 +31,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const isNumberValid = await bcrypt.compare(number, staffMember.dataValues.number);
 
     if (!isNumberValid) {
-      res.status(401).json({ message: 'Authentication failed' });
+      res.status(401).json({ message: 'Login failed' });
       return;
     }
 
@@ -44,7 +44,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
       process.env.JWT_SECRET || '',
       {
-        expiresIn: '1d',
+        expiresIn: '30m',
       }
     );
 
@@ -52,7 +52,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       { staffId: staffMember.id },
       process.env.REFRESH_TOKEN_SECRET || '',
       {
-        expiresIn: '2d',
+        expiresIn: '1d',
       }
     );
 
@@ -63,12 +63,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
      
     // Clear any existing refresh token cookie
-    if (cookies?.jwt) {
-      res.clearCookie('jwt', { httpOnly: true, sameSite: 'None' as 'none', secure: true });
+    if (cookies?.refreshToken) {
+      res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'None' as 'none', secure: true });
     }
 
     // Creates Secure Cookie with refresh token
-    res.cookie('jwt', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'None' as 'none', maxAge: 24 * 60 * 60 * 1000 });
+    res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'None' as 'none', maxAge: 24 * 60 * 60 * 1000 });
 
     res.json({
       success: true,

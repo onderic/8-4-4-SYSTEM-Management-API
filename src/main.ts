@@ -11,6 +11,7 @@ import dataFetching from './routes/dataFetching';
 import subjectRouter from './routes/subjectRouter';
 import examRouter from './routes/examRouter';
 import userAuthRoutes from './routes/auth/userAuthRoutes';
+import mpesa from './routes/mpesa/mpesaRoutes';
 import cookieParser from 'cookie-parser';
 
 import cors from 'cors';
@@ -35,6 +36,7 @@ app.use('/api/v1', dataFetching);
 app.use('/api/v1', subjectRouter);
 app.use('/api/v1', examRouter);
 app.use('/api/v1', userAuthRoutes);
+app.use('/api/v1', mpesa);
 
 // Database connection and server start
 const startServer = async (): Promise<void> => {

@@ -4,12 +4,14 @@ import { Staff } from '../../models/staff';
 
 export const refresh = async (req: Request, res: Response): Promise<void> => {
   try {
-    const refreshToken = req.cookies.jwt;
+    const authorizationHeader = req.headers.authorization;
 
-    if (!refreshToken) {
-      res.status(401).json({ message: 'Refresh token is missing' });
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      res.status(401).json({ message: 'Bearer token is missing or invalid' });
       return;
     }
+
+    const refreshToken = authorizationHeader.split(' ')[1];
 
     // Verify the refresh token
     let decoded;
@@ -62,17 +64,11 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
       refreshToken: [...(staffMember.dataValues.refreshToken || []), newRefreshToken],
     } as any);
 
-    // Clear any existing refresh token cookie
-    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None' as 'none', secure: true });
-
-    // Creates a new secure cookie with the new refresh token
-    res.cookie('jwt', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'None' as 'none', maxAge: 24 * 60 * 60 * 1000 });
-
     // Send the new access token in the response
-    res.json({
+    res.json({  
       success: true,
       message: 'Token refreshed successfully',
-      token: newAccessToken,
+      newToken: newAccessToken,
     });
   } catch (error) {
     console.error('Error during token refresh:', error);

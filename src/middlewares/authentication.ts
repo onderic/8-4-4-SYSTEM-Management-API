@@ -3,12 +3,21 @@ import jwt from 'jsonwebtoken';
 import CustomRequest from '../types/custom';
 
 export const verifyToken = (req: CustomRequest, res: Response, next: NextFunction): void => {
-  const token = req.cookies.jwt;
+  const authorizationHeader = req.headers.authorization;
 
-  if (!token) {
+  if (!authorizationHeader) {
     res.status(401).json({ message: 'Unauthorized: No token provided' });
     return;
   }
+
+  const tokenParts = authorizationHeader.split(' ');
+
+  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+    res.status(401).json({ message: 'Unauthorized: Invalid token format' });
+    return;
+  }
+
+  const token = tokenParts[1];
 
   jwt.verify(
     token,
