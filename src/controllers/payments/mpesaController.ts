@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import request from 'request';
 import 'dotenv/config';
 import { getTimestamp } from '../../utils/utils.timestamp';
-import ngrok from 'ngrok'; // Import ngrok
-
+import ngrok from 'ngrok';
 import { Staff } from '../../models/staff';
 import { Mpesa } from '../../models/mpesa';
 
@@ -20,6 +19,17 @@ interface CallbackMetadataItem {
 export const initiateSTKPush = async (req: Request, res: Response) => {
   try {
     const { amount, phone, Order_ID } = req.body;
+    if(!amount || !phone || !Order_ID){
+      res.status(400).json({ message: 'All fields are required'})
+    }
+
+    const checkStaff = await Staff.findOne({
+      where: { id:Order_ID}
+    })
+    if(!checkStaff){
+      return res.status(400).json({ error: 'No order found' });
+    }
+
     const url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
     const auth = 'Bearer ' + (req.safaricom_access_token);
 
@@ -29,13 +39,20 @@ export const initiateSTKPush = async (req: Request, res: Response) => {
       (process.env.BUSINESS_SHORT_CODE ?? '') + (process.env.PASS_KEY ?? '') + timestamp
     ).toString('base64');
 
-    // Automatically create Ngrok tunnel
+    // create Ngrok tunnel
     const callback_url = await ngrok.connect({
+      proto: 'http', 
       addr: 3000,
       authtoken: process.env.NGROK_AUTH_TOKEN,
     });
 
     console.log('Ngrok tunnel URL:', callback_url);
+
+    let formattedPhoneNumber = phone;
+    if(phone.startsWith('0')){
+      formattedPhoneNumber = `254${phone.slice(1)}`  
+    }
+    console.log(formattedPhoneNumber)
 
     request(
       {
@@ -52,10 +69,10 @@ export const initiateSTKPush = async (req: Request, res: Response) => {
           Amount: amount,
           PartyA: phone,
           PartyB: process.env.BUSINESS_SHORT_CODE,
-          PhoneNumber: phone,
+          PhoneNumber: formattedPhoneNumber,
           CallBackURL: `${callback_url}/api/v1/pay/stkPushCallback/${Order_ID}`,
           AccountReference: 'Shopyetu Online Shop',
-          TransactionDesc: 'Paid online',
+          TransactionDesc: 'Paid Bill online',
         },
       },
       (e, response, body) => {
@@ -66,20 +83,16 @@ export const initiateSTKPush = async (req: Request, res: Response) => {
             error: e,
           });
         } else {
-          res.json({
-            success: true,
-            message: 'Your payment has been initiated successfully. Please check your phone for the push notification',
-            body,
-          });
+          res.status(200).json(body)
         }
       }
     );
   } catch (e) {
-    console.error('Error while trying to create LipaNaMpesa details', e);
+    console.error("Error while trying to create LipaNaMpesa details",e)
     res.status(503).send({
-      message: 'Something went wrong while trying to create LipaNaMpesa details. Contact admin',
-      error: e,
-    });
+        message:"Something went wrong while trying to create LipaNaMpesa details. Contact admin",
+        error : e
+    })
   }
 };
 
@@ -100,38 +113,28 @@ export const stkPushCallback = async (req: Request, res: Response) => {
       CallbackMetadata,
     } = req.body.Body.stkCallback || {};
 
-    console.log('-'.repeat(20), ' OUTPUT IN THE CALLBACK ', '-'.repeat(20));
-      console.log(`
-          StaffId : ${Order_ID},
-          MerchantRequestID : ${MerchantRequestID},
-          CheckoutRequestID: ${CheckoutRequestID},
-          ResultCode: ${ResultCode},
-        `)
-    
     // Get the meta data from CallbackMetadata
     if (CallbackMetadata && CallbackMetadata.Item) {
-      // Get the meta data from CallbackMetadata
       const meta: CallbackMetadataItem[] = Object.values(CallbackMetadata.Item);
       const PhoneNumber = meta.find((o) => o.Name === 'PhoneNumber')?.Value?.toString() || '';
       const Amount = parseFloat(meta.find((o) => o.Name === 'Amount')?.Value?.toString() || '0');
       const MpesaReceiptNumber = meta.find((o) => o.Name === 'MpesaReceiptNumber')?.Value?.toString() || '';
       const TransactionDate = meta.find((o) => o.Name === 'TransactionDate')?.Value?.toString() || '';
 
-      // Do something with the data
-      console.log('-'.repeat(20), ' OUTPUT IN THE CALLBACK ', '-'.repeat(20));
-      console.log(`
-          StaffId : ${Order_ID},
-          MerchantRequestID : ${MerchantRequestID},
-          CheckoutRequestID: ${CheckoutRequestID},
-          ResultCode: ${ResultCode},
-          ResultDesc: ${ResultDesc},
-          PhoneNumber : ${PhoneNumber},
-          Amount: ${Amount}, 
-          MpesaReceiptNumber: ${MpesaReceiptNumber},
-          TransactionDate : ${TransactionDate}
-      `);
+      // console.log('-'.repeat(20), ' OUTPUT IN THE CALLBACK ', '-'.repeat(20));
+      // console.log(`
+      //     StaffId : ${Order_ID},
+      //     MerchantRequestID : ${MerchantRequestID},
+      //     CheckoutRequestID: ${CheckoutRequestID},
+      //     ResultCode: ${ResultCode},
+      //     ResultDesc: ${ResultDesc},
+      //     PhoneNumber : ${PhoneNumber},
+      //     Amount: ${Amount}, 
+      //     MpesaReceiptNumber: ${MpesaReceiptNumber},
+      //     TransactionDate : ${TransactionDate}
+      // `);
 
-      // Update or create a record in the Mpesa model
+      //create a record in the Mpesa model
       const mpesaRecord = await Mpesa.create({
         PhoneNumber,
         Amount,
@@ -146,13 +149,12 @@ export const stkPushCallback = async (req: Request, res: Response) => {
 
       console.log("New record", mpesaRecord)
 
-      // Assuming you have a staffId associated with the Order_ID
+      // update the staff to paid
       const staffRecord = await Staff.findOne({
         where: { id: Order_ID },
       }as any);
 
       if (staffRecord) {
-        
         await staffRecord.update({ is_paid: true });
       }
 

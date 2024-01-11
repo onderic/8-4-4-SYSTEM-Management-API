@@ -11,6 +11,7 @@ interface StaffAttributes {
   type: "TEACHING" | "NON-TEACHING";
   role: "ADMIN" | "STAFF"; 
   refreshToken: string;
+  id:number
   is_paid: boolean;
 }
 
