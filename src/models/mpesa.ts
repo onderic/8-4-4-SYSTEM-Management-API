@@ -1,4 +1,5 @@
-import { Table, Model, Column, DataType } from "sequelize-typescript";
+import { Table, Model, Column, DataType,BelongsTo,ForeignKey } from "sequelize-typescript";
+import { Staff } from "./staff";
 
 interface MpesaAttributes {
   PhoneNumber: string;
@@ -9,7 +10,7 @@ interface MpesaAttributes {
   ResultDesc: string;
   MpesaReceiptNumber: string;
   TransactionDate: string;
-  OrderId: string;
+  staffId: string;
 }
 
 @Table({
@@ -65,9 +66,11 @@ export class Mpesa extends Model<MpesaAttributes> {
   })
   TransactionDate!: string;
 
+  @ForeignKey(() => Staff)
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  OrderId!: string;
+  staffId!: Staff;
+
 }

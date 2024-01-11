@@ -1,6 +1,7 @@
 import { Table, Model, Column, DataType, HasOne, HasMany } from "sequelize-typescript";
 import { Class } from "./class";
 import { Stream } from "./stream";
+import { Mpesa } from "./mpesa";
 import { Department } from "./department";
 
 interface StaffAttributes {
@@ -10,6 +11,7 @@ interface StaffAttributes {
   type: "TEACHING" | "NON-TEACHING";
   role: "ADMIN" | "STAFF"; 
   refreshToken: string;
+  is_paid: boolean;
 }
 
 @Table({
@@ -49,6 +51,14 @@ export class Staff extends Model<StaffAttributes> {
     defaultValue: 'STAFF',
   })
   role!: "ADMIN" | "STAFF";
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  is_paid!: boolean;
+
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),

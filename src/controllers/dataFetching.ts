@@ -11,7 +11,7 @@ export const getAllStaffMembers = async (req: Request, res: Response) => {
   try {
     // Fetch all staff members
     const staffList = await Staff.findAll({
-      attributes: ['id','name', 'number','type'],
+      attributes: ['id','name', 'number','type','is_paid'],
       include: [
         {
         model: Class,
